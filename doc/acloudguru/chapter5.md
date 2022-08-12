@@ -23,11 +23,26 @@
     - [Glacier Deep Archive](#glacier-deep-archive)
   - [Lifecycle Management with S3](#lifecycle-management-with-s3)
   - [S3 Object Lock and Glacier Vault Lock](#s3-object-lock-and-glacier-vault-lock)
+    - [S3 Object Lock Modes](#s3-object-lock-modes)
+      - [Governance Mode](#governance-mode)
+      - [Compliance Mode](#compliance-mode)
+    - [Retention Periods](#retention-periods)
+    - [Legal Holds](#legal-holds)
+    - [Glacier Vault Lock](#glacier-vault-lock)
   - [Encrypting S3 Objects](#encrypting-s3-objects)
+    - [Types of Encryption](#types-of-encryption)
+    - [Enforcing Server-Side Encryption](#enforcing-server-side-encryption)
   - [Optimizing S3 Performance](#optimizing-s3-performance)
+    - [S3 Prefixes Explained](#s3-prefixes-explained)
+    - [S3 Limitations when using SSE-KMS](#s3-limitations-when-using-sse-kms)
+    - [S3 Multipart Uploads](#s3-multipart-uploads)
+    - [S3 Byte-Range Downloads](#s3-byte-range-downloads)
   - [Backing up Data with S3 Replication](#backing-up-data-with-s3-replication)
   - [Lab Exercises](#lab-exercises)
-    - [Lab 5.1.](#lab-51)
+    - [Lab 5. Create a Static Website Using Amazon S3](#lab-5-create-a-static-website-using-amazon-s3)
+      - [Create S3 Bucket](#create-s3-bucket)
+      - [Enable Static Website Hosting](#enable-static-website-hosting)
+      - [Apply Bucket Policy](#apply-bucket-policy)
 
 <!-- /TOC -->
 
@@ -244,13 +259,377 @@ For example:
 
 ## S3 Object Lock and Glacier Vault Lock
 
+You can use **S3 Object Lock** to store objects using a write once, read many (WORM) model. It can help prevent objects from being deleted or modified for a fixed amount of time or indefinitely.
+
+You can use S3 Object Lock to meet regulatory requirements that require WORM storage, or add an extra layer of protection against object changes and deletion. Object Lock can be on individual objects or applied across the bucket as a whole.
+
+### S3 Object Lock Modes
+
+#### Governance Mode
+
+In governance mode, users can't overwrite or delete an object version or alter its lock settings unless they have special permissions.
+
+With governance mode, you protect objects against being deleted by most users, but you can still grant some users permission to alter the retention settings or delete the object if necessary.
+
+#### Compliance Mode
+
+In compliance mode, a protected object version can't be overwritten or deleted by any user, including the root user in your AWS account. When an object is locked in compliance mode, its retention mode can't be changed and its retention period can't be shortened.
+
+Compliance mode ensures an object version can't be overwritten or deleted for the duration of the retention period.
+
+### Retention Periods
+
+A retention period protects an object version for a fixed amount of time. When you place a retention period on an object version, Amazon S3 store a timestamp in the object version's metadata to indicate when the retention period expires.
+
+After the retention period expires, the object version can be overwritten or deleted unless you also placed a **legal hold** on the object version.
+
+### Legal Holds
+
+S3 Object Lock also enables you to place a legal hold on an object version. Like a retention period, a legal hold prevents an object version from being overwritten or deleted.
+
+However, a legal hold doesn't have an associated retention period and remains in effect until removed. Legal holds can be freely placed and removed by any user who has the `s3:PutObjectLegalHold` permission.
+
+### Glacier Vault Lock
+
+S3 Glacier Vault Lock allows you to easily deploy and enforce compliance controls for individual S3 Glacier vaults with a vault lock policy. You can specify controls, such as WORM, in a vault lock policy and lock the policy from future edits. 
+
+Once locked, the policy can no longer be changed. In other words, Glacier Vault Lock is a way of applying the WORM model to Glacier.
+
 ## Encrypting S3 Objects
+
+### Types of Encryption
+
+1. Encryption in Transit
+  - SSL/TLS
+  - HTTPS
+2. Encryption at Rest: Server-Side Encryption
+  - SSE-S3: S3-managed keys, using AES 256-bit encryption
+  - SSE-KMS: AWS Key Management Service-managed keys
+  - SSE-C: Customer-provided keys
+3. Encryption at Rest: Client-Side Encryption
+  - You encrypt the files yourself before you upload them to S3
+
+### Enforcing Server-Side Encryption
+
+1. Console
+  - The easiest way ti just a checkbox in the console
+  - Select the encryption setting on your S3 bucket
+2. Bucket Policy
+  - Enforce encryption using a bucket policy
+  - Create a bucket policy that denies any S3 PUT request that doesn't incude the `x-amz-server-side-encryption` parameter
+3. Request Header
+  - The `x-amz-server-side-encryption` parameter will be included in the PUT request header 
+  - There are two allowed values for this parameter: (1) `AES256` (SSE-S3); or (2) `aws:kms` (SSE-KMS)
+  - This tells S3 to encrypt the object at the time of upload, using the specified encryption method
 
 ## Optimizing S3 Performance
 
+S3 has extremely low latency as you can get the first byte out of S3 within 100-200 milliseconds. You can also achieve a high number of requests: 3,500 `PUT`/`COPY`/`POST`/`DELETE` and 5,500 `GET`/`HEAD` requests per second per prefix.
+
+### S3 Prefixes Explained
+
+**S3 Prefix** is just the folder path, that excludes the file and bucket names, inside the S3 bucket, e.g. `/folder1/subfolder1/`
+
+You can get better performance by spreading your reads across different prefixes. For example, if you are using two prefixes, you can achieve 11,000 requests per second.
+
+### S3 Limitations when using SSE-KMS
+
+* If you are using SSE-KMS to encrypt your objects in S3, you must keep in mind the KMS limits.
+  - When you upload a file, you will call the `GenerateDataKey` in the KMS API
+  - When you download a file, you will call the `Decrypt` in the KMS API
+  - Uploading/downloading will count toward the KMS quota
+  - Currently, you cannot request a quota increase for KMS
+  - Region-specific, however, it's either 5,500, 10K or 30K requests per second
+
+### S3 Multipart Uploads
+
+* Recommended for files over 100 MB
+* Required for files over 5 GB
+* Parallelize uploads (increase efficiency)
+
+### S3 Byte-Range Downloads
+
+* Parallelize downloads by specifying byte ranges
+* If there's a failure in the download, it's only for a specific byte range
+
 ## Backing up Data with S3 Replication
+
+* You can replicate objects from one bucket to another
+  - Versioning must be enabled on both the source and destination buckets
+* Objects in an existing bucket are not replicated automatically
+  - Once replication is turned on, all subsequent updated objects will be replicated automatically
+* Delete markers are not replicated by default
+  - However, you can turn on replication of delete markers
 
 ---
 ## Lab Exercises
 
-### Lab 5.1.
+### Lab 5. Create a Static Website Using Amazon S3
+
+![Lab 5.](../../img/acloudguru/Lab5.png)
+
+#### Create S3 Bucket
+
+1. Navigate to AWS Management Console > S3
+  - Click Create bucket
+  - Set the following values
+    - Bucket name: <YOUR_BUCKET_NAME>
+    - Region: <YOUR_REGION>
+  - Uncheck Block all public access
+    - Ensure all four restrictions beneath it are also unchecked
+  - Leave all other settings as their defaults
+  - Click Create bucket
+2. Copy the bucket ARN as you'll need it later
+3. Upload both `error.html` and `index.html` into your bucket.
+
+<details>
+<summary>Click here to view the file error.html</summary>
+
+```html
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Creating a Static Website Using Amazon S3</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <style>
+    body {
+      padding-top: 5rem;
+    }
+
+    .starter-template {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">My Static Website</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+      aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu" aria-labelledby="dropdown01">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+
+  <main role="main" class="container">
+
+    <div class="starter-template">
+      <h1>Error</h1>
+      <p class="lead">Did you mean to go to <a href="index.html">index.html</a>?</p>
+      </p>
+    </div>
+
+    <div class="starter-template alert alert-light" role="alert">
+      Navigation and search functions are intentionally not implemented.
+    </div>
+
+  </main><!-- /.container -->
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+
+</html>
+```
+</details>
+
+<details>
+<summary>Click here to view the file index.html</summary>
+
+```html
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Creating a Static Website Using Amazon S3</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <style>
+    body {
+      padding-top: 5rem;
+    }
+
+    .starter-template {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">My Static Website</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+      aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu" aria-labelledby="dropdown01">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+
+  <main role="main" class="container">
+
+    <div class="starter-template">
+      <h1>Creating a Static Website Using Amazon S3</h1>
+      <p class="lead">In this live AWS hands-on lab, we will create and configure a simple static website. We will go
+        through configuring that static website with a custom error page. This will demonstrate how to create very
+        cost-efficient website hosting for sites that consist of files like HTML, CSS, JavaScript, fonts, and images.
+      </p>
+    </div>
+
+    <div class="starter-template alert alert-light" role="alert">
+      Navigation and search functions are intentionally not implemented.
+    </div>
+
+  </main><!-- /.container -->
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+  </script>
+</body>
+
+</html>
+```
+</details>
+
+#### Enable Static Website Hosting
+
+1. Navigate to S3 > <YOUR_BUCKET_NAME> > Properties
+  - Find the Static website hosting section
+  - Click Edit
+  - Set the following values:
+    - Static website hosting: Enable
+    - Hosting type: Host a static website
+    - Index document: index.html
+    - Error document: error.html
+  - Click Save changes
+2. Open the listed endpoint URL in a new browser tab.
+  - You'll see a `403 Forbidden` error message
+
+#### Apply Bucket Policy
+
+1. Back in S3, click the Permissions tab
+  - In the Bucket Policy section, click Edit
+  - In the Policy box, enter the following JSON statement:
+```json
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1645724938586",
+    "Statement": [
+        {
+            "Sid": "Stmt1645724933619",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "<BUCKET_ARN>/*"
+        }
+    ]
+}
+```
+  - Replace <BUCKET_ARN> with the one you copied earlier
+  - Click Save changes
+2. Refresh the browser tab with the endpoint URL you opened earlier
+  - This time the site should load correctly
+3. Add some random string at the end of the URL
+  - This will display your `error.html` page.

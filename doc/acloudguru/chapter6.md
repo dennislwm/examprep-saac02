@@ -349,6 +349,9 @@ You can have the following strategies with spot fleets:
 ---
 ## Lab 6.1. EC2 Instance Bootstrapping
 
+<details>
+<summary>Click here to start Lab 6.1.</summary>
+
 ### Use a Bootstrap Script (User Data) to Build webserver
 
 1. In AWS Management Console, navigate to EC2 > Launch instances.
@@ -391,9 +394,13 @@ sudo systemctl enable mysql
 5. Click Launch instance.
 
 6. Under EC2 instance details page, copy the public IP address and browse to the IP in a new tab.
+</details>
 
 ---
 ## Lab 6.2. Using EC2 Roles and Instance Profiles in AWS
+
+<details>
+<summary>Click here to start Lab 6.2.</summary>
 
 ### Introduction
 
@@ -633,3 +640,4 @@ aws sts get-caller-identity
     "Arn": "arn:aws:sts::757816818817:assumed-role/DEV_ROLE/i-001ed829bb9c53c9d"
 }
 ```
+</details>

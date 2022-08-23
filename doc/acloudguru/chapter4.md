@@ -60,6 +60,9 @@ A Policy Document can be either managed by AWS or created by a User.
 ---
 ## Lab 4. Create and Assume Roles in AWS
 
+<details>
+<summary>Click here to start Lab 4.</summary>
+
 ### Create the Correct S3 Restricted Policies and Roles
 
 1. Create a Policy Document `S3RestrictedPolicy`.
@@ -129,3 +132,4 @@ A Policy Document can be either managed by AWS or created by a User.
     ]
 }
 ```
+</details>

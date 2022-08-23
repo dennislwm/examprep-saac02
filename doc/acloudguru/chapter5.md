@@ -366,6 +366,9 @@ You can get better performance by spreading your reads across different prefixes
 
 ### Lab 5. Create a Static Website Using Amazon S3
 
+<details>
+<summary>Click here to start Lab 5.</summary>
+
 ![Lab 5.](../../img/acloudguru/Lab5.png)
 
 #### Create S3 Bucket
@@ -633,3 +636,4 @@ You can get better performance by spreading your reads across different prefixes
   - This time the site should load correctly
 3. Add some random string at the end of the URL
   - This will display your `error.html` page.
+</details>

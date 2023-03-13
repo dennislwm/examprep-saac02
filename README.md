@@ -146,8 +146,6 @@ In no particular order, my plan is to use the following resources to learn and r
   - [Lab 11.1. CloudWatch Logs Monitoring for a Web Server](doc/acloudguru/chapter11.md#lab-111-cloudwatch-logs-monitoring-for-a-web-server)
   - [Lab 11.2. AWS VPC Flow Logs for Network Monitoring](doc/acloudguru/chapter11.md#lab-112-aws-vpc-flow-logs-for-network-monitoring)
 </details>
-
-
 <details>
 <summary>Chapter 16. Security</summary>
 
@@ -220,9 +218,26 @@ In no particular order, my plan is to use the following resources to learn and r
   - [Leveraging AWS Security Hub for Collecting Security Data](doc/acloudguru/chapter16.md#leveraging-aws-security-hub-for-collecting-security-data)
   - [Lab 11.1. Using Secrets Manager to Authenticate with an RDS Database Using Lambda](doc/acloudguru/chapter16.md#lab-111-using-secrets-manager-to-authenticate-with-an-rds-database-using-lambda)
     - [Introduction](doc/acloudguru/chapter16.md#introduction)
-
 </details>
+<details>
+<summary>Chapter 17. Automation</summary>
 
+- [Chapter 17. Automation](doc/acloudguru/chapter17.md#chapter-17-automation)
+  - [Why Do We Automate](doc/acloudguru/chapter17.md#why-do-we-automate)
+    - [Benefits of Automation](doc/acloudguru/chapter17.md#benefits-of-automation)
+    - [Exam Tips](doc/acloudguru/chapter17.md#exam-tips)
+  - [CloudFormation](doc/acloudguru/chapter17.md#cloudformation)
+    - [Exam Tips](doc/acloudguru/chapter17.md#exam-tips)
+  - [Elastic Beanstalk](doc/acloudguru/chapter17.md#elastic-beanstalk)
+    - [Exam Tips](doc/acloudguru/chapter17.md#exam-tips)
+  - [Systems Manager](doc/acloudguru/chapter17.md#systems-manager)
+    - [Feature Overview](doc/acloudguru/chapter17.md#feature-overview)
+    - [Exam Tips](doc/acloudguru/chapter17.md#exam-tips)
+  - [Lab 17.1. Getting Started with CloudFormation](doc/acloudguru/chapter17.md#lab-171-getting-started-with-cloudformation)
+    - [Introduction](doc/acloudguru/chapter17.md#introduction)
+    - [Create a CloudFormation Stack](doc/acloudguru/chapter17.md#create-a-cloudformation-stack)
+    - [Delete CloudFormation Stack](doc/acloudguru/chapter17.md#delete-cloudformation-stack)
+</details>
 
 ---
 # Exam

@@ -555,6 +555,8 @@ You will use SQS to trigger a Lambda function, which will process messages from 
 
 5. Check that your DynamoDB table has been populated.
 
+![Lab 15 Diagram](../../img/acloudguru/Lab15.png)
+
 <details>
 <summary>Click here to start Lab 15.1.</summary>
 

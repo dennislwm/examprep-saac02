@@ -1,643 +1,383 @@
-# Chapter 6. Elastic Compute Cloud (EC2)
+# Chapter 7. Elastic Block Storage (EBS) and Elastic File System (EFS)
 
 <!-- TOC -->
 
-- [Chapter 6. Elastic Compute Cloud EC2](#chapter-6-elastic-compute-cloud-ec2)
-  - [EC2 Overview](#ec2-overview)
-    - [EC2 Pricing Options](#ec2-pricing-options)
-      - [On-Demand Instances](#on-demand-instances)
-      - [Reserved Instances](#reserved-instances)
-      - [When to Use Spot Instances](#when-to-use-spot-instances)
-      - [Dedicated Hosts](#dedicated-hosts)
-  - [Using Roles](#using-roles)
-  - [Security Groups and Bootstrap Scripts](#security-groups-and-bootstrap-scripts)
+- [Chapter 7. Elastic Block Storage EBS and Elastic File System EFS](#chapter-7-elastic-block-storage-ebs-and-elastic-file-system-efs)
+  - [EBS Overview](#ebs-overview)
+    - [Solid-State Drives SSD](#solid-state-drives-ssd)
+    - [Hard Disk Drive HDD](#hard-disk-drive-hdd)
+    - [IOPS vs. Throughput](#iops-vs-throughput)
     - [Exam Tips](#exam-tips)
-  - [EC2 Metadata and User Data](#ec2-metadata-and-user-data)
-  - [Networking with EC2](#networking-with-ec2)
-    - [Elastic Network Interface ENI](#elastic-network-interface-eni)
-    - [Enhanced Networking EN](#enhanced-networking-en)
-    - [Elastic Fabric Adapter EFA](#elastic-fabric-adapter-efa)
+  - [Volumes and Snapshots](#volumes-and-snapshots)
+    - [Tips for Volumes](#tips-for-volumes)
+    - [Tips for Snapshots](#tips-for-snapshots)
     - [Exam Tips](#exam-tips)
-  - [Optimizing with EC2 Placement Groups](#optimizing-with-ec2-placement-groups)
+  - [Protecting EBS Volumes with Encryption](#protecting-ebs-volumes-with-encryption)
+    - [Understanding Encryption](#understanding-encryption)
+    - [EBS Encryption](#ebs-encryption)
     - [Exam Tips](#exam-tips)
-  - [Solving Licensing Issues with Dedicated Hosts](#solving-licensing-issues-with-dedicated-hosts)
+  - [EC2 Hibernation](#ec2-hibernation)
     - [Exam Tips](#exam-tips)
-  - [Timing Workloads with Spot Instances and Spot Fleets](#timing-workloads-with-spot-instances-and-spot-fleets)
-    - [Spot Prices](#spot-prices)
-    - [Spot Blocks](#spot-blocks)
-    - [How to Terminate Spot Instances](#how-to-terminate-spot-instances)
-    - [Spot Fleets](#spot-fleets)
-    - [Launch Pools](#launch-pools)
-    - [Strategies](#strategies)
+  - [EFS Overview](#efs-overview)
+    - [Controlling Performance](#controlling-performance)
+    - [Storage Tiers](#storage-tiers)
     - [Exam Tips](#exam-tips)
-  - [Lab 6.1. EC2 Instance Bootstrapping](#lab-61-ec2-instance-bootstrapping)
-    - [Use a Bootstrap Script User Data to Build webserver](#use-a-bootstrap-script-user-data-to-build-webserver)
-  - [Lab 6.2. Using EC2 Roles and Instance Profiles in AWS](#lab-62-using-ec2-roles-and-instance-profiles-in-aws)
-    - [Introduction](#introduction)
-    - [Log in to a Bastion Host and Configure AWS CLI](#log-in-to-a-bastion-host-and-configure-aws-cli)
-    - [Create IAM Trust Policy for an EC2 Role](#create-iam-trust-policy-for-an-ec2-role)
-    - [Create the DEV_ROLE IAM Role](#create-the-dev_role-iam-role)
-    - [Create an IAM Policy Defining Read-Only Access Permissions to an S3 Bucket](#create-an-iam-policy-defining-read-only-access-permissions-to-an-s3-bucket)
-    - [Create Instance Profile and Attach Role to an EC2 Instance](#create-instance-profile-and-attach-role-to-an-ec2-instance)
-    - [Test S3 Permissions via the AWS CLI](#test-s3-permissions-via-the-aws-cli)
+  - [FSx Overview](#fsx-overview)
+    - [FSx for Windows vs. EFS](#fsx-for-windows-vs-efs)
+    - [FSx for Lustre](#fsx-for-lustre)
+    - [Exam Tips](#exam-tips)
+  - [Amazon Machine Images: EBS vs. Instance Store](#amazon-machine-images-ebs-vs-instance-store)
+    - [Amazon EBS vs Instance Store](#amazon-ebs-vs-instance-store)
+    - [Instance Store Volumes](#instance-store-volumes)
+    - [EBS Volumes](#ebs-volumes)
+    - [Exam Tips](#exam-tips)
+  - [AWS Backup](#aws-backup)
 
 <!-- /TOC -->
 
 ---
-## EC2 Overview
+## EBS Overview
 
-### EC2 Pricing Options
+There are different use cases for each type of Elastic Block Storage (EBS), which are storage volumes or virtual hard disk that you can attach to your EC2.
 
-1. On-Demand Instances: Pay by the hour or the second, depending on the type of instance you run
+* Production workloads: Designed for mission-critical workloads
 
-2. Reserved Instances: Contract for 1 or 3 years, up to 72% discount (longer period and higher upfront payment, a higher discount)
+* Highly available: Automatically replicated within a single AZ to protect against hardware failures
 
-3. Spot Instances: Purchase unused capacity, up to 90% discount (prices fluctuate based on supply and demand)
+* Scalable: Dynamically increase capacity and change the volume type with no downtime or performance impact to your live systems
 
-4. Dedicated Host: Physical server for your use, most expensive option
+EBS Volume Types:
 
-> Exam Tip: For each scenario, what is the best EC2 pricing option?
+### Solid-State Drives (SSD)
 
-#### On-Demand Instances
+* General Purpose SSD (`gp2`): 
+  - 3 IOPS per GiB, up to a max of 16,000 IOPS per volume
+  - `gp2` volumes smaller than 1 TB can burst up to 3,000 IOPS
+  - Good for boot volumes or development and test applications that are not latency sensitive
+  - Up to 99.9% durability
 
-* Flexible: Low cost and flexibility of instances without any upfront payment or long-term contract
-* Short-Term: Applications with short-term, spiky, or unpredictable workloads that cannot be interrupted
-* Testing the Water: Applications being developed or tested on instances for the first time
+* General Purpose SSD (`gp3`):
+  - Predictable 3,000 IOPS baseline performance and 125 MiB/s regardless of volume size
+  - Ideal for application that require high performance at a low cost, such as MySQL, Cassandra, virtual desktops, and Hadoop analystics
+  - Customers looking for higher performance can scale up to 16,000 IOPS and 1,000 MiB/s for an additional fee
+  - The top performance of `gp3` is four times faster than max throughput of `gp2` volumes
+  - Up to 99.9% durability
 
-#### Reserved Instances
+> Exam Tip: You are not required to memorize IOPS or throughput metrics, nor be given a scenario where you need to choose between `gp2` or `gp3`. However, always choose `gp3` because it's faster.
 
-* Regional Level: Reserved instances operate at a regional level
+* Provisioned IOPS SSD (`io1`):
+  - Up to 64,000 IOPS per volume, 50 IOPS per GiB
+  - Use if you need more than 16,000 IOPS
+  - Designed for I/O-intensive applications, large databases, and latency-sensitive workloads
+  - Up to 99.9% durability
 
-* Predictable Usage: Applications with steady state or predictable usage
+* Provisioned IOS SSD (`io2`):
+  - Latest generation higher durability and more IOPS than `io1`, but at the same price
+  - 500 IOPS per GiB, up to 64,000 IOPS per volume
+  - 99.999% durability, instead of up to 99.9%
+  - I/O-intensive apps, large databases, and latency-sensitive workloads
 
-* Specific Capacity Requirements: Applications that require reserved capacity
+### Hard Disk Drive (HDD)
 
-* Pay up Front: You can make upfront payments to reduce the total computing coss even further
+* Throughput Optimized HDD (`st1`):
+  - Low-cost HDD volume
+  - Baseline throughput of 40 MB/s per TB
+  - Ability to burst up to 250 MB/s per TB
+  - Maximum throughput of 500 MB/s per volume
+  - Frequently accessed, throughput-intensive workloads
+  - Big data, data warehouses, ETL, and log processing
+  - A cost-effective way to store mountains of data
+  - Cannot be a boot volume
+  - Up to 99.9% durability
 
-* Standard Reserved Instances: Up to 72% off the on-demand price (highest discount if paid in full upfront with a 3-year contract)
+* Cold HDD (`sc1`):
+  - Lowest cost HDD option
+  - Baseline throughput of 12 MB/s per TB
+  - Ability to burst up to 80 MB/s per TB
+  - Maximum throughput of 250 MB/s per volume
+  - A good choice for colder data requiring fewer scans per day
+  - Good for applications that need the lowest cost and performance is not a factor
+  - Cannot be a boot volume
+  - Up to 99.9% durability
 
-* Convertible Reserved Instances: Up to 54% off the on-demand price (has the option to change to a different Reserved Instance type of equal or greater value)
+### IOPS vs. Throughput
 
-* Scheduled Reserved Instances: Launch within the time window you define. Match your capacity reservation to a predictable recurring schedule that only requires a fraction of a day, week, or month.
+IOPS:
+- Measures the number of read and write operations per second
+- Important metric for quick transactions, low-latency apps, transactional workloads
+- The ability to action reads and writes very quickly
+- Choose Provisioned IOPS SSD (`io1` or `io2`)
 
-* Super Flexible: Not only EC2, but this includes serverless like Lambda and Fargate as well
-
-#### When to Use Spot Instances
-
-* Flexible: Applications that have flexible start and end times, i.e. you should not use Spot instances for a 24/7 web server
-
-* Urgent Capacity: Urgent need for large amount of additional computing capacity, e.g. image rendering, algo trading
-
-* Cost Sensitive: Applications that are only feasible at very low compute prices, e.g. batch jobs executed during non-working hours
-
-#### Dedicated Hosts
-
-* Compliance: Regulatory requirements that may not support multi-tenant virtualization
-
-* Licensing: Licensing that does not support multi-tenancy or cloud deployments
-
-* On-Demand Host: Can be purchased on-demand (hourly)
-
-* Reserved Host: Can be purchased as a Reserved Host, up to 70% off the on-demand price
-
-## Using Roles
-
-A role is an identity you can create in IAM that has specific permissions. A role is similar to a user, as it is an AWS identity with permission policies.
-
-However, instead of being uniquely associated with one person, a role is intended to be assumable by anyone who needs it. Roles can be assumed by people, AWS architecture, or other system-level accounts.
-
-A role does not have standard long-term credentials the same way as passwords or access keys do. Instead, when you assume a role, it provides you with temporary security credentials for your role session.
-
-Roles can allow cross-account access. This allows one AWS account the ability to interact with resources in other AWS accounts.
-
-Roles are preferred from a security perspective. Roles allow you to provide access without the use of access key IDs and secret access keys.
-
-## Security Groups and Bootstrap Scripts
-
-Security groups are virtual firewalls for your EC2 instance. By default, everything is blocked.
-
-In order to be able to communicate to you EC2 instances via SSH/RDP/HTTP/HTTPS, you will need to open up the correct ports.
-
-Bootstrap script, also called User Data, is a script that runs when the instance first runs. Adding tasks at boot time adds to the amount of time it takes to boot the instance. However, it allows you to automate the installation of applications.
-
-### Exam Tips
-
-* Changes to security groups take effect immediately.
-* You can have any number of EC2 instances within a security group.
-* You can have multiple security groups attached to EC2 instances.
-* All inbound traffic is blocked by default.
-* All outbound traffic is allowed.
-
-## EC2 Metadata and User Data
-
-EC2 metadata is simply data about your EC2 instance, such as private IP address, hostname, security groups, etc.
-
-Using the `curl` command, we can retrieve and save our instance metadata during the bootstrapping. For example:
-
-```sh
-#!/bin/bash
-yum update -y
-yum install httpd -y
-service httpd start
-cd /var/www/html
-echo "<html><body><h1>My IP is" > index.html
-curl http://169.254.169.254/latest/meta-data/public-ipv4 >> index.html
-echo "</h1></body></html>" >> index.html
-```
-
-> Note: The `169.254.169.254` IP address is a *magic* IP in AWS that is used to retrieve instance metadata. It can only be accessed locally from instances and available without encryption or authentication.
-
-Using `curl` to retrieve the user data and instance metadata, when connected to an EC2 instance:
-
-```sh
-curl http://169.254.169.254/latest/meta-data/
-ami-id
-ami-launch-index
-ami-manifest-path
-block-device-mapping/
-hostname
-iam/
-instance-action
-instance-id
-instance-type
-local-hostname
-local-ipv4
-mac
-metrics/
-network/
-placement/
-profile
-public-hostname
-public-ipv4
-public-keys/
-reservation-id
-security-groups
-services/
-```
-
-## Networking with EC2
-
-You can attach three different types of virtual networking cards to your instances.
-
-* Elastic Network Interface (ENI): For basic, day-to-day networking
-
-* Enhanced Networking (EN): Uses single root I/O virtualization (SR-IOV) to provide high performance
-
-* Elastic Fabric Adapter (EFA): Accelerates High Performance Computing (HPC) and machine learning applications
-
-### Elastic Network Interface (ENI)
-
-ENI is simply a virtual network card that allows:
-* Private IPv4 address
-* Public IPv4 address
-* Many IPv6 addresses
-* MAC address
-* One or more security groups
-
-Common ENI use cases:
-* Create a management network
-* Use network and security appliances in your VPC
-* Create dual-homed instances with workloads/roles on distinct subnets
-* Create a low-budget, high-availability solution
-* Default networking for a new instance
-
-### Enhanced Networking (EN)
-
-EN allows for high-performance networking between 10 Gbps and 100 Gbps:
-* SR-IOV provides higher I/O performance and lower CPU utilization
-* Provides higher bandwidth, higher packet per second (PPS) performance, and consistently lower inter-instance latencies
-
-Depending on your instance type, EN can be enabled using:
-
-* Elastic Network Adapter (ENA): Supports network speeds of up to 100 Gbps
-
-* Intel 82599 Virtual Function (VF) Interface: Supports network speeds of up to 10 Gbps (typically used on older instances)
-
-> Exam tip: Choose ENA over VF interface.
-
-### Elastic Fabric Adapter (EFA)
-
-EFA is a network device that allows:
-* attach to your instance to accelerate High Performance Computing (HPC) and machine learning applications
-* provides lower and more consistent latency and higher throughput than the TCP transport traditionally used in cloud-based HPC systems
-* can use OS-bypass, with much lower latency, enables HPC and machine learning applications to bypass operating system kernel and communicate directly with the EFA device (currently supported on Linux only)
+Throughput:
+- Measures the number of bits read or written per second (MB/s)
+- Important metric for large datasets, large I/O sizes, complex queries
+- The ability to deal with large datasets
+- Choose Throughput Optimized HDD (`st1`)
 
 ### Exam Tips
 
-For different scenarios on the exam, choose the correct networking device.
+* Boot disk for OS choose `gp3` (we won't be given a choice of choosing `gp2`)
 
-* ENI: For basic networking. Perhaps you need a separate management network from your production network or a separate logging network, and you need to do this at a low cost. In this scenario, use multiple ENIs for each network.
+* Low-latency disk for transactional apps choose `io2` (we won't be given a choice of choosing `io1`)
 
-* EN: For when you need speeds between 10 Gbps and 100 Gbps. Anywhere you need reliable, high throughput.
+* If you need more than 16,000 IOPS per volume choose `io2` over `gp3`
 
-* EFA: For when you need to accelerate HPC and machine learning applications or if you need to do an OS-bypass. If you see a scenario question mentioning HPC or ML and asking what network adapter you want, choose EFA.
-
-## Optimizing with EC2 Placement Groups
-
-The three types of EC2 placement groups are:
-
-* Cluster: Grouping of instances within a single AZ. Recommended for applications that need low network latency, high network throughput, or both (applies only to certain type of instances).
-
-* Spread: Group of instances that are each placed on distinct underlying hardware. Recommended for applications that have a small number of critical instances that should be kept separate from each other.
-
-* Partition: A logical segment that has its own set of racks. Each rack has its own network and power source. No two partitions within a placement group share the same racks, allowing you to isolate the impact of hardware failure within your application.
-
-### Exam Tips
-
-Three types of placement groups:
-
-* Cluster Placement Groups: Low network latency, high network throughput
-
-* Spread Placement Groups: Individual critical EC2 instances
-
-* Partition Placement Groups: Multiple EC2 instances; HDFS, HBase, and Cassandra
-
-Properties of placement groups:
-
-* A cluster placement group cannot span multiple AZs, whereas both spread and partition groups can.
-
-* Only certain types of instances can be launced in a placement group (compute optimized, GPU, memory optimized, storage optimized).
-
-* AWS recommends homogenous instances within cluster placement groups.
-
-* You cannot merge placement groups.
-
-* You can move an existing instance into a placement group. Before you move the instance, the instance must be stopped. You can move or remove it using AWS CLI or AWS SDK, but not via the console yet.
-
-## Solving Licensing Issues with Dedicated Hosts
-
-Use cases for Dedicated Hosts:
-
-* Compliance: Regulatory requirements that may not support multi-tenant virtualization
-
-* Licensing: Licensing that does not support multi-tenancy or cloud deployments
-
-Types of Dedicated Hosts:
-* Can be purchased on-demand (hourly)
-* Can be purchased as a reservation for up to 70% off the on-demand price
-
-### Exam Tips
-
-Any question that talks about special licensing requirements, consider Dedicated Hosts.
-
-An EC2 Dedicated Host is a physical server with EC2 instance capacity fully dedicated to your use. Dedicated Hosts allow you to use your existing per-socket, per-core, or per-VM software licenses, including Windows Server, Microsoft SQL Server, and SUSE Linux Enterprise Server.
-
-## Timing Workloads with Spot Instances and Spot Fleets
-
-AWS EC2 spot instances let you take advantage of unused EC2 capacity in the AWS Cloud. Spot instances are available up to a 90% discount compared to On-Demand prices.
-
-When to use spot instances:
-* Stateless, fault-tolerant, or flexible applications
-* Examples: big data, containerized workloads, CI/CD, high-performance computing (HPC), image and media rendering, and other test and development workloads.
-
-When NOT to use spot instances:
-* Persistent workloads, critical jobs, or databases
-
-### Spot Prices
-
-You must first decide on your maximum spot price. The instance will be provisioned so long as the spot price is **BELOW** your maximum spot price. 
-
-The hourly spot price varies depending on capacity and region. You can view pricing history in the console to determine which region has the cheapest spot prices.
-
-If the spot price goes above your maximum, you have *two minutes* to choose whether to stop or terminate your instances.
-
-### Spot Blocks
-
-You may use a spot block to stop your instances from being terminated even if the spot price goes over your maximum spot price. You can set spot blocks for between 1 and 6 hours currently.
-
-### How to Terminate Spot Instances
-
-First terminate your spot request, then navigate to your EC2 and terminate each instance individually.
-
-![Terminating Spot Instances](../../img/acloudguru/EC2SpotInstances.png)
-
-### Spot Fleets
-
-A spot fleet is a collection of spot instances and (optionally) on-demand instances. The spot fleet attempts to launch the number of instances to meet the target capacity you specified in the spot request.
-
-The request for spot instances is fulfilled if there is available capacity and the maximum spot price you specified in the request exceeds the current spot price. The spot fleet also attempts to maintain its target capacity fleet if your spot instances are interrupted.
-
-### Launch Pools
-
-Set up different launch pools:
-* Define things like EC2 instance type, operating system, and AZ.
-* You can have multiple pools, and the spot fleet will choose the best way to implement depending on the strategy you define.
-* Spot fleets will stop launching instances once you reach your price threshold or capacity desire.
-
-### Strategies
-
-You can have the following strategies with spot fleets:
-
-* `capacityOptimized`: The spot instances come from the pool with optimal capacity for the number of instances launching.
-
-* `lowestPrice`: The spot instances come from the pool with the lowest price. This is the default strategy.
-
-* `diversified`: The spot instances are distributed across all pools.
-
-* `InstancePoolsToUseCount`: The spot instances are distributed across the number of spot instance pools you specify. This parameter is valid only when used in combination with `lowestPrice`.
-
-### Exam Tips
-
-* Spot instances can save up to 90% of the cost of On-Demand instances.
-
-* Useful for any type of computing where you don't need persistent storage.
-
-* You can block Spot instances from terminating by using a Spot block.
-
-* A Spot Fleet is a collection of spot instances and (optionally) On-Demand instances.
+* If you need the lowest cost EBS choose `sc1`
 
 ---
-## Lab 6.1. EC2 Instance Bootstrapping
+## Volumes and Snapshots
 
-<details>
-<summary>Click here to start Lab 6.1.</summary>
+Volumes are simply virtual hard disks that exist on EBS. You need a minimum of one volume per EC2 instance (called the root device volume).
 
-### Use a Bootstrap Script (User Data) to Build webserver
+Snapshots are a point-in-time copy of a volume that exist on S3. Snapshots are incremental and only the data that has been changed since your last snapshot are moved to S3.
 
-1. In AWS Management Console, navigate to EC2 > Launch instances.
+The first snapshot may take some time to create as there is no previous point-in-time copy. However, subsequent snapshots are quicker as it is smaller in space.
 
-2. Enter the instance details:
-  - Name: `webserver-02`
-  - Application and OS: `Ubuntu`
-  - AMI: `Ubuntu 20.04 LTS`
-  - Instance Type: `t2.micro`
-  - Key pair: `Proceed without a key pair`
+### Tips for Volumes
 
-3. Under Network settings, click Edit:
-  - Auto-assign public IP: `Enable`
-  - Firewall (security group): `Select existing security group`
-  - Security group: `EC2SecurityGroup`
+* Location: EBS volumes will always be in the same AZ as the EC2 instance to which it is attached.
 
-4. Under Advanced details, scroll down to User data, and paste the following bash script:
+* Resizing: You can resize volumes on-the-fly, without stopping or restarting the instance. However, you will need to extend the filesystem in the OS so the OS can see the resized volume.
 
-```sh
-#!/bin/bash
-sudo apt-get update -y
-sudo apt-get install apache2 unzip -y
-sudo systemctl enable apache2
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-echo '<html><h1>Bootstrap Demo</h1><h3>Availability Zone: ' > /var/www/html/index.html
-curl http://169.254.169.254/latest/meta-data/placement/availability-zone >> /var/www/html/index.html
-echo '</h3> <h3>Instance Id: ' >> /var/www/html/index.html
-curl http://169.254.169.254/latest/meta-data/instance-id >> /var/www/html/index.html
-echo '</h3> <h3>Public IP: ' >> /var/www/html/index.html
-curl http://169.254.169.254/latest/meta-data/public-ipv4 >> /var/www/html/index.html
-echo '</h3> <h3>Local IP: ' >> /var/www/html/index.html
-curl http://169.254.169.254/latest/meta-data/local-ipv4 >> /var/www/html/index.html
-echo '</h3></html> ' >> /var/www/html/index.html
-sudo apt-get install mysql-server -y
-sudo systemctl enable mysql
-```
+* Volume Type: You can change volume types on-the-fly, e.g. from `gp2` to `io2`, without stopping or restarting the instance.
 
-5. Click Launch instance.
+### Tips for Snapshots
 
-6. Under EC2 instance details page, copy the public IP address and browse to the IP in a new tab.
-</details>
+* Consistent snapshots: It is recommended you stop the instance and take a snap as snapshots only capture data that has been written to your EBS volume, which might exclude any data that has been locally cached by your application or OS. 
+
+* Encrypted snapshots: If you take a snapshot of an encrypted EBS volume, the snapshot will be encrypted automatically.
+
+* Sharing snapshots: You can share snapshots but only in the region in which they were created. To share to other regions, you will need to copy them to the destination region first.
+
+### Exam Tips
+
+To move an EC2 to another region:
+1. Copy snapshot from source region to target region.
+2. In the target region, create an image from the copied snapshot.
 
 ---
-## Lab 6.2. Using EC2 Roles and Instance Profiles in AWS
+## Protecting EBS Volumes with Encryption
 
-<details>
-<summary>Click here to start Lab 6.2.</summary>
+EBS encrypts volumes with a data key using the industry-standard AES-256 algorithm. It uses AWS KMS customer master keys (CMKs) when creating encrypted volumes and snapshots.
 
-### Introduction
+### Understanding Encryption
 
-AWS IAM roles for EC2 provide the ability to grant instances temporary credentials. These temporary credentials can then be used by hosted applications to access permissions configured within the role.
+* Data at rest is encrypted inside the volumes and snapshots.
 
-IAM roles eliminate the need for managing credentials, help mitigate long-term security risks, and simplify permissions management.
+* All data in flight moving between the instance and the volume is encrypted.
 
-### Log in to a Bastion Host and Configure AWS CLI
+* All snapshots created from volumes are encrypted
 
-1. Navigate to EC2 > Instances. Connect to the Bastion Host instance.
+* All volumes created from snapshots are encryped.
 
-2. In the EC2 terminal, run the command `aws configure`.
-  - Press `Enter` twice to leave the AWS Access Key ID and AWS Secret Access Key blank.
-  - Enter `us-east-1` as the default region name.
-  - Enter `json` as the default output format.
+### EBS Encryption
 
-### Create IAM Trust Policy for an EC2 Role
+* Handled transparently: Encryption and decryption are handled transparently.
 
-1. Create a file called `trust_policy_ec2.json` with `vi`.
+* Latency: Encryption has minimal impact on latency.
 
-2. Type `:set paste` and then `i` to enter Insert mode.
+* Copying: Copying an unencrypted snapshot allows encryption.
 
-3. Paste in the following content:
+* Snapshots: Snapshots of encrypted volumes are encrypted.
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {"Service": "ec2.amazonaws.com"},
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
+* Root Device Volume: You can encrypt root device volumes upon creation.
 
-4. Save and quit the file by pressing Escape followed by typing `:wq!`.
+### Exam Tips
 
-### Create the `DEV_ROLE` IAM Role
+Steps to encrypt an unencrypted volume attached to an instance:
 
-1. Run the following AWS CLI command:
+1. Create a snapshot of the unencrypted root device volume.
 
-```json
-aws iam create-role --role-name DEV_ROLE --assume-role-policy-document file://trust_policy_ec2.json
-{
-    "Role": {
-        "AssumeRolePolicyDocument": {
-            "Version": "2012-10-17", 
-            "Statement": [
-                {
-                    "Action": "sts:AssumeRole", 
-                    "Effect": "Allow", 
-                    "Principal": {
-                        "Service": "ec2.amazonaws.com"
-                    }
-                }
-            ]
-        }, 
-        "RoleId": "AROA3A4LG7SAY6PLIHGTS", 
-        "CreateDate": "2022-08-22T09:11:41Z", 
-        "RoleName": "DEV_ROLE", 
-        "Path": "/", 
-        "Arn": "arn:aws:iam::757816818817:role/DEV_ROLE"
-    }
-}
-```
+2. Create a copy of the snapshot and select the encrypt option.
 
-### Create an IAM Policy Defining Read-Only Access Permissions to an S3 Bucket
+3. Create an AMI from the encrypted snapshot.
 
-1. Create a file called `dev_s3_read_access.json` with `vi`. Paste in the following content:
+4. Use that AMI to launch a new instance with an encrypted root device volume.
 
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-          "Sid": "AllowUserToSeeBucketListInTheConsole",
-          "Action": ["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
-          "Effect": "Allow",
-          "Resource": ["arn:aws:s3:::*"]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:Get*",
-                "s3:List*"
-            ],
-            "Resource": [
-                "arn:aws:s3:::<DEV_S3_BUCKET_NAME>/*",
-                "arn:aws:s3:::<DEV_S3_BUCKET_NAME>"
-            ]
-        }
-    ]
-}
-```
+---
+## EC2 Hibernation
 
-2. Create the managed policy called `DevS3ReadAccess`:
+We have learned so far we can stop and terminate EC2 instances. If we stop the instance, the data is kept on the disk (with EBS) and will remain on the disk until the instance is started.
 
-```json
-aws iam create-policy --policy-name DevS3ReadAccess --policy-document file://dev_s3_read_access.json
-{
-    "Policy": {
-        "PolicyName": "DevS3ReadAccess", 
-        "PermissionsBoundaryUsageCount": 0, 
-        "CreateDate": "2022-08-22T09:14:26Z", 
-        "AttachmentCount": 0, 
-        "IsAttachable": true, 
-        "PolicyId": "ANPA3A4LG7SAUROBO3KCJ", 
-        "DefaultVersionId": "v1", 
-        "Path": "/", 
-        "Arn": "arn:aws:iam::757816818817:policy/DevS3ReadAccess", 
-        "UpdateDate": "2022-08-22T09:14:26Z"
-    }
-}
-```
+If the instance is terminated, then by default the root device volume will also be terminated.
 
-3. Copy the policy ARN, as we'll need it later.
+When you hibernate an EC2 instance, the OS is told to perform hibernation (suspend-to-disk), which saves the contents from the instance memory (RAM) to your EBS root volume. We persist the EBS root volume and any attached EBS data volumes.
 
-### Create Instance Profile and Attach Role to an EC2 Instance
+When you start your instance out of hibernation:
+1. The EBS root volume is restored to its previous state.
+2. The RAM contents are reloaded.
+3. The processes that are previously running on the instance are resumed.
+4. Previously attached data volumes are reattached and the instance retains its instance ID.
 
-1. Attach the managed policy to the role, replacing `<POLICY_ARN>` with the ARN you just copied:
+With EC2 hibernation, the instance boot much faster as the OS does not need to reboot because the RAM is preserved. This is useful for:
 
-```sh
-aws iam attach-role-policy --role-name DEV_ROLE --policy-arn "<POLICY_ARN>"
-```
+* Long-running processes
 
-2. Verify the managed policy was attached:
+* Services that take time to initialize
 
-```json
-aws iam list-attached-role-policies --role-name DEV_ROLE
-{
-    "AttachedPolicies": [
-        {
-            "PolicyName": "DevS3ReadAccess", 
-            "PolicyArn": "arn:aws:iam::757816818817:policy/DevS3ReadAccess"
-        }
-    ]
-}
-```
+### Exam Tips
 
-3. Create instance profile named `DEV_PROFILE`:
+* EC2 hibernation preserves the in-memory RAM on persistant storage (EBS).
 
-```json
-aws iam create-instance-profile --instance-profile-name DEV_PROFILE
-{
-    "InstanceProfile": {
-        "InstanceProfileId": "AIPA3A4LG7SAVCVTTHXR4", 
-        "Roles": [], 
-        "CreateDate": "2022-08-22T09:18:27Z", 
-        "InstanceProfileName": "DEV_PROFILE", 
-        "Path": "/", 
-        "Arn": "arn:aws:iam::757816818817:instance-profile/DEV_PROFILE"
-    }
-}
-```
+* Much faster to boot up because you don't need to reload the OS.
 
-4. Add role to the `DEV_PROFILE` called `DEV_ROLE`:
+* Instance RAM must be less than (<) 150 GB.
 
-```sh
-aws iam add-role-to-instance-profile --instance-profile-name DEV_PROFILE --role-name DEV_ROLE
-```
+* Instance families include C(3-5), M(3-5), and R(3-5).
 
-5. Verify the configuration:
+* Available for Windows, Amazon Linux 2 AMI, and Ubuntu.
 
-```json
-aws iam get-instance-profile --instance-profile-name DEV_PROFILE
-{
-    "InstanceProfile": {
-        "InstanceProfileId": "AIPA3A4LG7SAVCVTTHXR4", 
-        "Roles": [
-            {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17", 
-                    "Statement": [
-                        {
-                            "Action": "sts:AssumeRole", 
-                            "Effect": "Allow", 
-                            "Principal": {
-                                "Service": "ec2.amazonaws.com"
-                            }
-                        }
-                    ]
-                }, 
-                "RoleId": "AROA3A4LG7SAY6PLIHGTS", 
-                "CreateDate": "2022-08-22T09:11:41Z", 
-                "RoleName": "DEV_ROLE", 
-                "Path": "/", 
-                "Arn": "arn:aws:iam::757816818817:role/DEV_ROLE"
-            }
-        ], 
-        "CreateDate": "2022-08-22T09:18:27Z", 
-        "InstanceProfileName": "DEV_PROFILE", 
-        "Path": "/", 
-        "Arn": "arn:aws:iam::757816818817:instance-profile/DEV_PROFILE"
-    }
-}
-```
+* Instances cannot be hibernated for more than 60 days.
 
-6. In the AWS console, navigate to EC2 > Instances. Copy the instance ID of the instance that you want to attach the `DEV_PROFILE` to, as we'll need it later.
+* Available for both On-Demand and Reserved Instances.
 
-7. In the terminal, replace `<INSTANCE_ID>` with the instance ID that you just copied:
+---
+## EFS Overview
 
-```json
-aws ec2 associate-iam-instance-profile --instance-id <INSTANCE_ID> --iam-instance-profile Name="DEV_PROFILE"
-{
-    "IamInstanceProfileAssociation": {
-        "InstanceId": "i-001ed829bb9c53c9d", 
-        "State": "associating", 
-        "AssociationId": "iip-assoc-061fd65a7e73dce1c", 
-        "IamInstanceProfile": {
-            "Id": "AIPA3A4LG7SAVCVTTHXR4", 
-            "Arn": "arn:aws:iam::757816818817:instance-profile/DEV_PROFILE"
-        }
-    }
-}
-```
+Amazon Elastic File System (EFS) is a managed Network File System (NFS) that can be mounted on many EC2 instances, in multiple AZs. EFS is highly available and scalable, however, it is expensive.
 
-8. Verify the configuration with the instance ID that you copied:
+![EFS](../../img/acloudguru/EFS.png)
 
-```json
-aws ec2 describe-instances --instance-ids <INSTANCE_ID> | grep DEV_PROFILE
-                        "Arn": "arn:aws:iam::757816818817:instance-profile/DEV_PROFILE"
-```
+Use cases:
 
-### Test S3 Permissions via the AWS CLI
+* Content Management: You can easily share content between instances
 
-1. Navigate to EC2 > Instances. Connect to the your instance.
+* Web Server: Have just a single folder structure for your web site
 
-2. In the EC2 terminal, verify the instance is assuming the `DEV_ROLE` role:
+Understanding EFS:
 
-```json
-aws sts get-caller-identity
-{
-    "Account": "757816818817", 
-    "UserId": "AROA3A4LG7SAY6PLIHGTS:i-001ed829bb9c53c9d", 
-    "Arn": "arn:aws:sts::757816818817:assumed-role/DEV_ROLE/i-001ed829bb9c53c9d"
-}
-```
-</details>
+* Uses NFSv4 protocol
+* Compatible with Linux-based AMI (Windows not supported at this time)
+* Encryption at rest using KMS
+* File system scales automatically; no need for capacity 
+* Pay per use
+
+EFS Performance:
+
+* Can support thousands of concurrent connections (EC2 instances)
+* Can handle up to 10 Gbps in throughput
+* Scal your storage to petabytes
+
+### Controlling Performance
+
+When creating an EFS, you can set what performance characteristics you want:
+
+* General purpose: Used for things like web servers, CMS, etc.
+
+* Max I/O: Used for big data, media processing, etc.
+
+### Storage Tiers
+
+EFS comes with storage tiers and lifecycle management, allowing you to move your data from one tier to another after X number of days.
+
+* Standard: For frequently accessed files
+* Infrequently Accessed: For files not frequently accessed
+
+### Exam Tips
+
+* Supports the Network File System version 4 (NFSv4) protocol
+
+* Only pay for the storage you use (no pre-provisioning required)
+
+* Can scale up to petabytes
+
+* Can support thousands of concurrent NFS connections
+
+* Data is stored redundantly across multiple AZs within a region
+
+* Read-after-write consistency
+
+* If you have a scenario-based question around highly scalable storage using NFS, think EFS
+
+---
+## FSx Overview
+
+Amazon FSx for Windows File Server provides a fully managed native Microsoft Windows file system so you can easily move Windows-based applications that require file storage to AWS. FSx is built on Windows Server.
+
+### FSx for Windows vs. EFS
+
+FSx for Windows:
+
+* A managed Windows Server that runs Windows Server Message Block (SMB)-based file services
+* Designed for Windows and Windows applications
+* Supports Active Domain (AD) users, access control lists, groups, and security policies, along with Distributed File System (DFS) namespaces and replication
+
+EFS:
+
+* A managed NAS filer for EC2 instances based on Network File System (NFS) version 4
+* One of the first network file sharing protocols native to Unix and Linux
+
+### FSx for Lustre
+
+A fully managed file system that is optimized for compute-intensive workloads, such as High Performance Computing (HPC), Machine Learning (ML), Media Data Processing Workflows (MDPW), Electronic Design Automation (EDA).
+
+### Exam Tips
+
+* EFS: When you need distributed, highly resilient storage for Linux instances and Linux-based applications.
+
+* FSx for Windows: When you need centralized storage for Windows-based applications, such as SharePoint, Microsoft SQL Server, Workspaces, IIS Web Server, Active Directory, or any other native Microsoft application 
+
+* FSx for Lustre: When you need high-speed, high-capacity distributed storage. This will be for applications that do high processing massive datasets, or up to hundreds of Gbps of throughput, millions of IOPS, or sub-millisecond latencies. Remember that FSx for Lustre can store data directly on S3.
+
+---
+## Amazon Machine Images: EBS vs. Instance Store
+
+An Amazon Machine Image (AMI) provides the information required to launch an instance. You must specify an AMI when you launch an instance.
+
+Five things that you can base your AMI on:
+* Region
+* OS
+* Architecture (32-bit or 64-bit)
+* Launch permissions
+* Storage for the root device (root device volume)
+
+### Amazon EBS vs Instance Store
+
+* Amazon EBS: The root device for an instance launched from the AMI is an Amazon EBS volume created from an Amazon EBS snapshot.
+
+* Instance Store: The root device for an instance launched from the AMI is an instance store volume created from a template stored in Amazon S3.
+
+### Instance Store Volumes
+
+Instance store volumes are sometimes called ephemeral storage. Instance store volumes cannot be stopped.
+
+If the underlying host fails, you will lose your data. You can, however, reboot the instance without losing your data.
+
+If you delete the instance, you will lose the instance store volume.
+
+### EBS Volumes
+
+EBS-backed instances can be stopped. You will not lose the data on this instance if it is stopped.
+
+You can also reboot an EBS volume and not lose your data. By default, the root device volume will be deleted on termination.
+
+However, you can tell AWS to keep the root device volume with EBS volumes.
+
+### Exam Tips
+
+* Instance store volumes are sometimes called ephemeral storage.
+
+* Instance store volumes CANNOT be stopped. If the underlying host fails, you will lose your data.
+
+* EBS-backed instances can be stopped. You will not lose data on this instance if it is stopped.
+
+* You can reboot both EBS and instance store volumes and you will not lose your data.
+
+* By default, both root volumes will be deleted on termination. However, with EBS volumes, you can tell AWS to keep the root device volume before launch an instance.
+
+* An AMI is just a blueprint for an EC2 instance.
+
+---
+## AWS Backup
+
+AWS Backup allows you to consolidate your backups across multiple AWS services, such as EC2, EBS, EFS, Amazon FSx for Lustre, Amazon FSx for Windows, and AWS Storage Gateway. It can include other services, such as databases like RDS and DynamoDB.
+
+Backups can be used with AWS Organizations to back up multiple AWS accounts in your organization. It gives you centralized control across all AWS services, in multiple AWS accounts across the entire AWS organization.
+
+Benefits of AWS Backup:
+
+* Central Management: Use a single, central backup console, allowing you to centralize your backups across multiple AWS services and multiple AWS accounts.
+
+* Automation: You can create automated backup schedules and retention policies. You can also create lifecycle policies, allowing you to expire unnecessary backups after a period of time.
+
+* Improved Compliance: Backup policies can be enforced while backups can be encrypted both at rest and in transit, allowing alignment to regulatory compliance. Auditing is made easy due to a consolidated view of backups across many AWS services.

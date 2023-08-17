@@ -39,13 +39,21 @@
     - [Features and Terms](#features-and-terms)
     - [Guardrails](#guardrails)
   - [Managing Software Licenses in AWS with AWS License Manager](#managing-software-licenses-in-aws-with-aws-license-manager)
-  - [Monitoring Health Events in the AWS Service Catalog and AWS Proton](#monitoring-health-events-in-the-aws-service-catalog-and-aws-proton)
-  - [Optimizing Architectures with the AWS Well-Archtected Tool](#optimizing-architectures-with-the-aws-well-archtected-tool)
-  - [Governance Exam Tips](#governance-exam-tips)
+  - [Monitoring Health Events in the AWS Health Dashboard](#monitoring-health-events-in-the-aws-health-dashboard)
+    - [AWS Health Concepts](#aws-health-concepts)
+  - [Standardizing Self-Service Deployments Using AWS Service Catalog and AWS Proton](#standardizing-self-service-deployments-using-aws-service-catalog-and-aws-proton)
+    - [Benefits of AWS Service Catalog](#benefits-of-aws-service-catalog)
+    - [AWS Proton](#aws-proton)
+  - [Optimizing Architectures with the AWS Well-Architected Tool](#optimizing-architectures-with-the-aws-well-architected-tool)
+    - [AWS Well-Architected Framework Review](#aws-well-architected-framework-review)
+    - [AWS Well-Architected Tool](#aws-well-architected-tool)
   - [Lab 19. Using AWS Tags and Resource Groups](#lab-19-using-aws-tags-and-resource-groups)
     - [Introduction](#introduction)
     - [Runbooks](#runbooks)
-      - [Create](#create)
+      - [Set Up AWS Config](#set-up-aws-config)
+      - [Tag an AMI and EC2 Instance](#tag-an-ami-and-ec2-instance)
+      - [Tag Applications with the Tag Editor](#tag-applications-with-the-tag-editor)
+      - [Create Resource Groups and Use AWS Config Rules for Compliance](#create-resource-groups-and-use-aws-config-rules-for-compliance)
 
 <!-- /TOC -->
 
@@ -350,14 +358,116 @@ Guardrails are high-level rules in plain language providing ongoing governance t
 ---
 ## Managing Software Licenses in AWS with AWS License Manager
 
----
-## Monitoring Health Events in the AWS Service Catalog and AWS Proton
+AWS License Manager is a service that simplifies **managing software licenses with different vendors**, e.g. Microsoft, SAP, etc.
+
+* Centralized - **Manage licenses across hybrid cloud environments**.
+
+* Set Usage Limits - Control and visibility into usage of licenses by **enabling license usage limits**.
+
+* Reduce Overages - **Reduces overages and penalties** via inventory tracking and rule-based controls for consumption.
+
+* Versatile - Supports any software based on vCPU, physical cores, sockets, and number of machines.
 
 ---
-## Optimizing Architectures with the AWS Well-Archtected Tool
+## Monitoring Health Events in the AWS Health Dashboard
+
+AWS Health provides you visibility of resource performance and availability of AWS services or accounts through operational events.
+
+* View how the health events affect your account.
+
+* Timely and relevant information with events.
+
+* View upcoming maintenance tasks that may affect your account.
+
+* Near-instand delivery of notification and alerts to spped up troublehshooting or prevention.
+
+* Automate remediation actions for operational events using EventBridge.
+
+### AWS Health Concepts
+
+* AWS Health Event - Notifications sent on behalf of AWS services.
+
+* Account-specific Event - Events specific to your account.
+
+* Public Event - Events reported on services that are public.
+
+* AWS Health Dashboard - Dashboard showing account and public events.
+
+* Event Type Code - Include the affected services and the specific type of event.
+
+* Event Type Category - Associated category attached to every event.
+
+* Event Status - Reports if the event is Open, Closed, or Upcoming.
+
+* Affected Entities - Which AWS resources are or may be affected by the event.
 
 ---
-## Governance Exam Tips
+## Standardizing Self-Service Deployments Using AWS Service Catalog and AWS Proton
+
+AWS Service Catalog allows organizations to **create and manage catalogs of approved IT services** as CloudFormation templates.
+
+* Multi-purpose - List things like AMIs, servers, software, databases, and other preconfigured components.
+
+* Centralized - AWS Organizations can centrally managed IT services and maintain compliance.
+
+* End-User Friendly - End users can be allowed to easily deploy pre-approved catalog items within an organization.
+
+* CloudFormation - Catalog templates are written and listed using CF templates.
+
+### Benefits of AWS Service Catalog
+
+* Standardize - **Restrict launching products** to a specific list of pre-approved solutions.
+
+* Self-Service - End users can **browse products and deploy approved services** on their own.
+
+* Access Control - **Add constraints and grant access to products using AWS IAM**.
+
+* Versioning - **Update products to newer versions** and propagate changes automatically.
+
+### AWS Proton
+
+AWS Proton is a service that creates and manages infrastructure and deployment tooling for users as well as serverless and container-based applications.
+
+1. **Automate infrastructure as code (IaC) provisioning** and deployments.
+
+2. Define **standardized infrastructure for your serverless and container-based apps**.
+
+3. **Use templates to define and manage app stacks** that contain all components.
+
+4. **Automatically provisions resources, configures CI/CD, and deploys the code**.
+
+5. Supports AWS CloudFormation and Terraform IaC providers.
+
+---
+## Optimizing Architectures with the AWS Well-Architected Tool
+
+### AWS Well-Architected Framework Review
+
+The SIX (6) Pillars are:
+
+* Operational Excellence
+
+* Reliability
+
+* Security
+
+* Performance Efficiency
+
+* Cost Optimization
+
+* Sustainability
+
+### AWS Well-Architected Tool
+
+* Provides a consistent process for measuring cloud architectures.
+
+* Enables assistance with documenting workloads and architectural decisions.
+
+* Guides for making workloads reliable, secure, efficient, and cost effective.
+
+* Measure workloads against years of AWS best practices.
+
+* Intended for specific audiences, such as CTO, architecture, and operational teams.
 
 ---
 ## Lab 19. Using AWS Tags and Resource Groups
@@ -368,11 +478,153 @@ You will use SQS to trigger a Lambda function, which will process messages from 
 
 ### Runbooks
 
-1. Create
+1. Set Up AWS Config
+
+2. Tag an AMI and EC2 Instance
+
+3. Tag Applications with the Tag Editor
+
+4. Create Resource Groups and Use AWS Config Rules for Compliance
 
 <details>
 <summary>Click here to start Lab 19.</summary>
 
-#### 1. Create
+#### 1. Set Up AWS Config
+
+1. Navigate to AWS Console > Config and click **1-click setup**.
+
+2. Leave the settings as their defaults and click **Confirm**.
+
+#### 2. Tag an AMI and EC2 Instance
+
+1. Navigate to AWS Console > EC2 > Instances (running) and select any of the instances listed.
+
+2. Right-click on the name of selected instance and select Image and templates > Create image.
+
+3. For the Image name, enter `Base` and click **Create image**.
+
+4. Navigate to AMIs in the left-hand menu, and select the newly created image (available).
+
+5. Click **Launch instance from AMI**, and enter the following details.
+  - Name: `My Test Server`
+  - Instance type: `t3.micro`
+  - Key pair name: `Proceed without a key pair (Not recommended)`
+
+6. In the Network settings > Firewall (security groups) > Select existing security group.
+
+7. In Common security groups > Select the one with `SecurityGroupWeb` in the name.
+
+8. Leave the rest of the default settings and click **Launch instance**.
+
+#### 3. Tag Applications with the Tag Editor
+
+**Module 1 Tagging**
+
+1. Navigate to AWS Console > Resource Groups & Tag Editor > Click **Tag Editor**.
+
+2. In the Find resources to tag section, set the following values:
+  - Regions: `us-east-1`
+  - Resource types:
+    - `AWS::EC2::Instance`
+    - `AWS::S3::Bucket`
+
+3. Click **Search resources**.
+
+4. In the Resource search results, set the following values:
+  - In the Filter resources search window: `Mod. 1`
+    - Select both instances, and click **Clear filters**.
+  - In the Filter resources search window: enter `moduleone`
+    - Select the listed S3 bucket, and click **Clear filters**.
+
+5. Click **Manage tags of selected resources**.
+
+6. In the Edit tags of all selected resources section, click **Add tag**, and set the following values:
+  - Tag key: `Module`
+  - Tag value: `Starship Monitor`
+
+7. Click **Review and apply tag changes** > Apply changes to all selected.
+
+**Module 2 Tagging**
+
+8. Click **Search resources**.
+
+9. In the Resource search results, set the following values:
+  - In the Filter resources search window: `Mod. 2`
+    - Select both instances, and click **Clear filters**.
+  - In the Filter resources search window: enter `moduletwo`
+    - Select the listed S3 bucket, and click **Clear filters**.
+
+10. Click **Manage tags of selected resources**.
+
+11. In the Edit tags of all selected resources section, click **Add tag**, and set the following values:
+  - Tag key: `Module`
+  - Tag value: `Warp Drive`
+
+12. Click **Review and apply tag changes** > Apply changes to all selected.
+
+#### 4. Create Resource Groups and Use AWS Config Rules for Compliance
+
+**Create the `Starship Monitor` Resource Group
+
+1. Navigate to AWS Console > Resource Groups & Tag Editor > Click **Create Resource Group**.
+
+2. For Group type, select **Tag based**.
+
+3. In the Tags field, select the following:
+  - Tag key: `Module`
+  - Optional tag value: `Starship Monitor`
+
+4. Click **Preview group resources** and ensure all three resources show up.
+
+5. In the Group details section, enter a Group name of `Starship-Monitor` and click **Create group**.
+
+**Create the `Warp Drive` Resource Group
+
+6. In the left-hand menu, Click **Create Resource Group**.
+
+7. For Group type, select **Tag based**.
+
+8. In the Tags field, select the following:
+  - Tag key: `Module`
+  - Optional tag value: `Warp Drive`
+
+9. Click **Preview group resources** and ensure all three resources show up.
+
+10. In the Group details section, enter a Group name of `Warp-Drive` and click **Create group**.
+
+**Use AWS Config Rules for Compliance**
+
+11. Navigate to AWS Console > EC2 > Instances (running) > Select the `My Test Server` instance.
+
+12. In the Details section, copy its AMI ID.
+
+13. Navigate to AWS Console > AWS Config > click **Rules**.
+
+14. Click **Add rule**.
+  - For the rule type, select **Add AWS managed rule**.
+  - Search for `approved-amis-by-id` in the search box, and select that rule.
+
+15. Click **Next**.
+  - For the Name, enter `my_approved_ami_ids`
+  - In the Parameters section, paste the AMI ID you just copied into the **Value** field.
+
+16. Click Next > click **Save**.
+
+17. Navigate back to EC2 > Instances (running) > Select all the instances.
+
+18. Click Instance state > Reboot instance.
+  - In the Reboot instances? dialog, click **Reboot**.
+
+19. Navigate back to AWS Config, and you should see non-compliant resources.
+
+20. Click the `approved-amis-by-id` rule.
+  - Choose one of the non-compliant resource ID, and remember its last four characters.
+
+21. Navigate back to EC2 > Select the instance (by matching the last four characters)
+  - In the Details section, identify its AMI ID.
+
+22. Navigate back to AWS Config, and identify the AMI ID under Value in the Parameters section.
+
+23. You should see it doesn't match the AMI ID you noted in EC2, which means the rule successfully identified non-compliant resources.
 
 </details>

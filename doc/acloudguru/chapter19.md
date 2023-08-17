@@ -16,12 +16,28 @@
     - [State of Your Architecture](#state-of-your-architecture)
     - [Exam Tips](#exam-tips)
   - [Offloading Active Directory to Directory Service](#offloading-active-directory-to-directory-service)
+    - [AWS Directory Service Types](#aws-directory-service-types)
   - [Exploring with Cost Explorer](#exploring-with-cost-explorer)
+    - [Cost Explorer Features](#cost-explorer-features)
   - [Using AWS Budgets](#using-aws-budgets)
+    - [Types of Budgets](#types-of-budgets)
   - [Optimizing Costs with AWS Cost and Usage Reports](#optimizing-costs-with-aws-cost-and-usage-reports)
-  - [Reducing Compute Spend Using Savings Plans and AWS Compute Optimizer](#reducing-compute-spend-using-savings-plans-and-aws-compute-optimizer)
+    - [AWS CURS Use Cases](#aws-curs-use-cases)
+    - [Exam Tips](#exam-tips)
+  - [AWS Compute Optimizer](#aws-compute-optimizer)
+    - [AWS Compute Optimizer Resources](#aws-compute-optimizer-resources)
+    - [Supported Account Types](#supported-account-types)
+    - [Exam Tips](#exam-tips)
+  - [Reducing Compute Spend Using AWS Savings Plans](#reducing-compute-spend-using-aws-savings-plans)
+    - [What Are Saving Plans?](#what-are-saving-plans)
+    - [Saving Plan Types](#saving-plan-types)
+    - [Using and Applying Saving Plans](#using-and-applying-saving-plans)
   - [Auditing with Trusted Advisor](#auditing-with-trusted-advisor)
+    - [Supported Checks](#supported-checks)
+    - [Exam Tips](#exam-tips)
   - [Enforcing Account Governance via AWS Control Tower](#enforcing-account-governance-via-aws-control-tower)
+    - [Features and Terms](#features-and-terms)
+    - [Guardrails](#guardrails)
   - [Managing Software Licenses in AWS with AWS License Manager](#managing-software-licenses-in-aws-with-aws-license-manager)
   - [Monitoring Health Events in the AWS Service Catalog and AWS Proton](#monitoring-health-events-in-the-aws-service-catalog-and-aws-proton)
   - [Optimizing Architectures with the AWS Well-Archtected Tool](#optimizing-architectures-with-the-aws-well-archtected-tool)
@@ -122,23 +138,214 @@ AWS Config is an inventory management and control tool that allows you to **show
 ---
 ## Offloading Active Directory to Directory Service
 
+AWS Directory Service is a fully managed version of Active Directory (AD).
+
+### AWS Directory Service Types
+
+* Managed Microsoft AD - Entire AD suite in AWS.
+
+* AD Connector - **Creates a tunnel between AWS and your on-premises AD**.
+
+* Simple AD - Standalone AD powered by Linux Samba Active Directory.
+
 ---
 ## Exploring with Cost Explorer
+
+AWS Cost Explorer is an easy-to-use tool that allows you to **visualize your cloud costs** and **generate reports** based on a variety of factors, including resource tags.
+
+### Cost Explorer Features
+
+* Service - Easily break down costs on a service-by-service basis.
+
+* Time - Break down costs by time period.
+
+* Filter - Filter on regions, tags, categories, etc.
+
+* Predictive - Estimate your spend for the upcoming months.
 
 ---
 ## Using AWS Budgets
 
+AWS Budgets allows organizations to easily **plan and set expectations around cloud costs**. You can easily track your ongoing spend and **create alert thresholds to let users know when they're close to exceeding their alloted spend**, and **choose a remediation action to mitigate the budget exceeding**.
+
+### Types of Budgets
+
+You get 2 free budgets every month.
+
+* Cost Budget - How much are we spending? Set a fixed cost budget per period.
+
+* Usage Budget - How much are we using? Use tags to create very specific budgets.
+
+* Reservation Budget - Are we being efficient with our Reserved instances?
+
+* Saving Plans Budget - Is what we're doing covered by our savings plan?
+
 ---
 ## Optimizing Costs with AWS Cost and Usage Reports
 
+AWS Cost and Usage Reports (CUR) is the most comprehensive set of cost and usage data available for AWS spending.
+
+* **Publish billing reports to AWS S3** for centralize collection.
+
+* Break costs down by the time span, service and resource, or by tags.
+
+* AWS CUR updates reports in S3 buckets once a day using CSV formats.
+
+* Easily integrate with Amazon Athena, Redshift, or QuickSight.
+
+### AWS CURS Use Cases
+
+* **Use within AWS Organizations** for entire OU groups or individual member accounts.
+
+* **Track Saving Plans utilizations**, charges, and current allocations.
+
+* **Monitor on-demand capacity reservations**.
+
+* Break down your AWS data transfer charges.
+
+* Dive deeper into cost allocation tag resource spending.
+
+### Exam Tips
+
+* AWS CUR is the most comprehensive and detailed view of your AWS spending.
+
+* Any mention of detailed cost break downs, delivery of daily usage reports, or tracking saving plans utilizations.
+
 ---
-## Reducing Compute Spend Using Savings Plans and AWS Compute Optimizer
+## AWS Compute Optimizer
+
+AWS Compute Optimizer:
+
+* Optimizes - **Analyzes configurations and utilization metrics** of your AWS resources.
+
+* Reporting - **Reports current usage optimizations** and potential recommendations.
+
+* Graphs - **Provides graphical history data** and projected utilization metrics.
+
+* Informed Decisions - Use graphs, metric data, and **recommendations for moving or resizing resources**.
+
+### AWS Compute Optimizer Resources
+
+* EC2
+
+* ASG
+
+* EBS
+
+* Lambda
+
+### Supported Account Types
+
+* Individual AWS standalone account.
+
+* Individual AWS member account within an AWS organization.
+
+* AWS Organizations management account for all member accounts.
+
+### Exam Tips
+
+* You must **opt in to leverage AWS Compute Optimizer**. After opting in, you should **enable enhanced recommendations** via activation of recommendation preferences (some are paid features).
+
+---
+## Reducing Compute Spend Using AWS Savings Plans
+
+### What Are Saving Plans?
+
+* Flexible Pricing - Up to 72% savings on compute.
+
+* Lower Prices - Regardless of instance family, size, OS, tenancy, or regions.
+
+* Variety - AWS Lambda, Fargate, and SageMaker usage.
+
+* Commitments - One-year or three-year pricing commitments.
+
+* Pricing Plan - All Upfront, Partial Upfront, or No Upfront options.
+
+### Saving Plan Types
+
+Three different Saving Plan types:
+
+* Compute Saving Plan - Applies to any EC2, Lambda or Fargate usage (up to 66% savings).
+
+* EC2 Instance Saving Plan - Applies to only EC2 instances of a specific instance family in specific region (up to 72% savings).
+
+* SageMaker Saving Plan - Applies to SageMaker instances regardless of instance family, size, region etc (up to 64% savings).
+
+### Using and Applying Saving Plans
+
+* **View Saving Plans recommendations within your AWS Billing console**.
+
+* Recommendations are automatically calculated to make purchasing easier.
+
+* Add to cart and purchase directly within your AWS account.
+
+* Apply to usage rates after reserved instances are applied and exhausted.
+
+* Consolidated billing family - Applied to account owner first, then spread to other accounts if you enable sharing.
 
 ---
 ## Auditing with Trusted Advisor
 
+AWS Trusted Advisor is a freemium fully managed auditing tool that **scans five different parts of your account** to look for places where you improve your adoption of the recommended best practices.
+
+### Supported Checks
+
+* Cost Optimization - Are you spending money on resources that aren't needed?
+
+* Performance - Are your services configured properly?
+
+* Security - Is your AWS architecture full of vulnerabilities?
+
+* Fault Tolerance - Are you protected when something fails?
+
+* Service Limits - Do you have room to scale up?
+
+### Exam Tips
+
+* Alerts - Use alerts to give a heads up to your team.
+
+* Cost - You will need a Business or Enterprise Support plan for the most useful checks.
+
+* Automate - Use EventBridge to kick off Lambda to remediate the problem for you.
+
 ---
 ## Enforcing Account Governance via AWS Control Tower
+
+AWS Control Tower offers the quickest way to create and manage a secure, compliant, multi-account environment based on best practices.
+
+* Orchestration - **Automates account creation** and security controls via other AWS services, such as AWS Config, AWS IAM Identity Centre and AWS Organizations.
+
+* Governance - **Set up and govern an AWS multi-account environment**.
+
+* Extension - **Extends AWS Organizations to prevent governance drift**, and leverages different guardrails.
+
+### Features and Terms
+
+* Landing Zone - A container that has a well-architected, multi-account environment based on compliance and best practices.
+
+* Guardrails - High-level rules providing continuous governance that are both preventive and detective.
+
+* Account Factory - Configurable account template for standardizing pre-approved configs of new accounts.
+
+* CloudFormation StackSet - Automated deployments of templates deploying repeated resources for governance.
+
+* Shared Accounts - Three shared accounts used by AWS Control Tower, two of which are created during the Landing Zone creation.
+  * Management Account - places both preventive and detective guardrails, set up AWS CloudTrail, and enable governance notifications in every new account.
+  * Log Archive Account - every new account is configured so that the AWS Config and CloudTrail logs are sent to the Log Archive Account.
+  * Audit Account - every new account is configured to so that all configuration events, aggregate security and drift notifications are sent to the respective SNS topics in the Audit Account.
+
+### Guardrails
+
+Guardrails are high-level rules in plain language providing ongoing governance that are both preventive and detective.
+
+* Preventive - Ensures accounts maintain governance by **disallowing violating actions**.
+  * Leverages AWS Service Control Policies.
+  * Statuses of Enforced or Not Enabled.
+  * Supported in all regions.
+* Detective - **Detects and alerts on non-compliant resources**.
+  * Leverages AWS Config rules.
+  * Statuses of Clear, In Violation, or Not Enabled.
+  * Only apply to certain regions that supports AWS Control Tower.
 
 ---
 ## Managing Software Licenses in AWS with AWS License Manager

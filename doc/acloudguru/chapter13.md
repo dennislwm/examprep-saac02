@@ -16,12 +16,22 @@
     - [SNS Settings](#sns-settings)
   - [Fronting Applications with API Gateway](#fronting-applications-with-api-gateway)
     - [API Gateway Features](#api-gateway-features)
-    - [Exam Tips](#exam-tips)
   - [Executing Batch Workloads Using AWS Batch](#executing-batch-workloads-using-aws-batch)
+    - [AWS Batch Components](#aws-batch-components)
+    - [Fargate or EC2 Compute Environments](#fargate-or-ec2-compute-environments)
+    - [AWS Lambda vs Batch](#aws-lambda-vs-batch)
+    - [Managed and Unmanaged Compute Environments](#managed-and-unmanaged-compute-environments)
   - [Brokering Messages with Amazon MQ](#brokering-messages-with-amazon-mq)
+    - [SNS with SQS vs MQ](#sns-with-sqs-vs-mq)
+    - [Configuring Brokers](#configuring-brokers)
   - [Coordinating Distributed Apps with AWS Step Functions](#coordinating-distributed-apps-with-aws-step-functions)
+    - [Step Function Workflows](#step-function-workflows)
+    - [States and State Machines](#states-and-state-machines)
+    - [State Types](#state-types)
   - [Ingesting Data from SaaS Applications to AWS with Amazon AppFlow](#ingesting-data-from-saas-applications-to-aws-with-amazon-appflow)
-  - [Exam Tips](#exam-tips)
+    - [AppFlow Terms and Concepts](#appflow-terms-and-concepts)
+    - [AppFlow Use Cases](#appflow-use-cases)
+    - [Exam Tips](#exam-tips)
 
 <!-- /TOC -->
 
@@ -145,19 +155,179 @@ AWS API Gateway is a fully managed service that **allows you to easily publish, 
 
 ![Example API Gateway](../../img/acloudguru/Chp13.1.png)
 
-### Exam Tips
-
 ---
 ## Executing Batch Workloads Using AWS Batch
+
+AWS Batch:
+
+* **Runs any batch computing workloads** (on EC2 or ECS/Fargate).
+
+* **Removes any heavy lifting for configuration and management of infrastructure** for computing.
+
+* **Automatically provisions accurately sized compute resources** based on number of jobs submitted, and optimizes the distribution of workloads.
+
+* **Skips any installaation and maintenance of batch computing software**, so you can focus on obtaining and analyzing the results.
+
+### AWS Batch Components
+
+There are four main components:
+
+* **Jobs** - Units of work, e.g. shell scripts, executables, Docker images etc., that are submitted to AWS Batch.
+
+* **Job Definitions** - Specify how your jobs are to be run, essentially the blueprint for the resources in the job.
+
+* **Job Queues** - Jobs get submitted to specific queues and reside there until scheduled to run in a compute environment.
+
+* **Compute Environment** - Set of managed or unmanaged compute resources used to run your jobs.
+
+### Fargate or EC2 Compute Environments
+
+**Fargate** is the recommended way of launching most AWS Batch jobs. However, sometimes EC2 may be the best choice.
+
+|         Fargate         |           EC2           |
+|:-----------------------:|:-----------------------:|
+|      Standard AMI       |  Custom AMI (only EC2)  |
+| Less compute intensive  |   Compute > 16 vCPUs    |
+| Less memory consumption |    Memory > 120 GiB     |
+| Slower jobs deploy rate | Higher jobs deploy rate |
+| Non-GPU or Graviton CPU |   GPU or Graviton CPU   |
+|   Non-linuxParameters   |  linuxParameters usage  |
+
+### AWS Lambda vs Batch
+
+|        Lambda         |                Batch                |
+|:---------------------:|:-----------------------------------:|
+| Time limit <= 15 mins |       No execution time limit       |
+|  Limited disk space   |         No disk space limit         |
+|   Limited runtimes    | No runtimes limit as it uses Docker |
+
+### Managed and Unmanaged Compute Environments
+
+|             Managed Compute             |          Unmanaged Compute           |
+|:---------------------------------------:|:------------------------------------:|
+| AWS manages capacity and instance types |      User manage own resources       |
+|       User-defined compute specs        |     AMI must meet ECS AMI specs      |
+|     EC2 instances uses VPC subnets      | Good choice for complex environments |
+| Default is the latest AMI or custom AMI |    Prefer managed over unmanaged     |
+|    Leverage Fargate, Spot instances     |                                      |
 
 ---
 ## Brokering Messages with Amazon MQ
 
+Amazon MQ is a message broker service **allowing easier migration of existing applications to the AWS Cloud**.
+
+* Variety - leverages multiple programming languages, OS, and messaging protocols.
+
+* Engine Types - supports both Apache ActiveMQ and Rabbit MQ.
+
+* Managed Service - leverage existing applications without managing and maintaining your own system.
+
+### SNS with SQS vs MQ
+
+|          SNS with SQS           |                 AWS MQ                 |
+|:-------------------------------:|:--------------------------------------:|
+| When creating new applications  |  When migrating existing applications  |
+|     Simpler to use, with HA     |      More configuration required       |
+| Publicly accessible without VPC | Requires a private networking, ie. VPC |
+|    Offers topics and queues     |        Offers topics and queues        |
+| Integrations with AWS resources |          No AWS integrations           |
+
+### Configuring Brokers
+
+* Single-instance Broker - One MQ broker lives within one AZ, used for dev environments. RabbitMQ has a NLB in front.
+
+* Highly Available - MQ offers HA architectures to minimize downtime.
+
+* MQ for ActiveMQ - One instance remain active, with standby deployments.
+
+* MQ for RabbitMQ - Cluster deployments of three broker nodes across multiple AZs, sitting behind a NLB.
+
 ---
 ## Coordinating Distributed Apps with AWS Step Functions
+
+**AWS Step Functions** is a serverless orchestration service which allows you to combine AWS Lambda service with other AWS services to build business logic.
+
+* Graphical Console - easier application workflow views.
+
+* Components - main components are state machines and tasks.
+
+* State Machine - a particular workflow with different event-driven steps.
+
+* Task - specific states within a workflow (state machine) representing a single unit of work.
+
+* States - Every single step within a workflow is considered a state.
+
+* Executions - instances where you run your workflows in order to perform your tasks.
+
+* Integrations - many AWS services integration available, e.g. Lambda, Batch, SNS etc.
+
+### Step Function Workflows
+
+There are two different types of workflows:
+
+|                           Standard                            |                           Express                            |
+|:-------------------------------------------------------------:|:------------------------------------------------------------:|
+|                    Exactly-once execution                     |               At-least-once workflow execution               |
+|                      Runs up to one year                      |                     Runs up to 5 minutes                     |
+| Useful for long-running workflows that need auditable history |             Useful for high-event-rate workflows             |
+|            Rates up to 2,000 executions per second            |                                                              |
+|             Pricing based on per state transition             | Pricing based on number of executions, durations, and memory |
+
+### States and State Machines
+
+* Flexible - Leverage states to either make decisions based on input, perform certain actions, or pass output.
+
+* Language - States and workflows are defined in Amazon States Language, similar to JSON format.
+
+* States - States are elements within your state machines. They are referred to by a user-defined name, e.g. each step in an order workflow is considered a state.
+
+### State Types
+
+* Pass - passes any input directly to its output, no work done.
+
+* Task - Single unit of work performed, e.g. Lambda, Batch and SNS.
+
+* Choice - Adds branching logic to state machines.
+
+* Wait - Creates a specified time delay within the state machine.
+
+* Succeed - Stops execution successfully.
+
+* Fail - Stops execution and marks them as failed.
+
+* Parallel - Runs parallel branches of executions within state machines.
+
+* Map - Runs a set of steps based on elements of an input array.
 
 ---
 ## Ingesting Data from SaaS Applications to AWS with Amazon AppFlow
 
----
-## Exam Tips
+* Managed Service - fully managed integration service for exchanging data between SaaS apps and AWS services.
+
+* Ingest Data - pulls data records from third-party SaaS vendors and stores them in Amazon S3.
+
+* Bi-Directional - two-way data transfers with limited combinations.
+
+### AppFlow Terms and Concepts
+
+* Flow - flows transfer data between sources and destinations, a variety of SaaS applications are supported.
+
+* Data Mapping - how your source data is mapped to your destination data.
+
+* Filters - criteria to control which data is transferred.
+
+* Trigger - how the flow is started, i.e. on-demand, on-event, on-schedule.
+
+![Example Diagram](../../img/acloudguru/Chp13.2.png)
+
+### AppFlow Use Cases
+
+* Transferring Salesforce records to Amazon Redshift.
+
+* Ingesting and analyzing Slack conversations in S3.
+
+* Migrating Zendesk and other help desk support tickets to Snowflake.
+
+* Transferring aggregate data on a scheduled basis to S3 (up to 100 GB per flow).
+
+* Solutions needing managed and fast transfer of SaaS or third-party vendor data into AWS services.

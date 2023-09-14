@@ -1,8 +1,8 @@
-# Chapter 5. Simple Storage Service (S3)
+# Chapter 4. Simple Storage Service (S3)
 
 <!-- TOC -->
 
-- [Chapter 5. Simple Storage Service S3](#chapter-5-simple-storage-service-s3)
+- [Chapter 4. Simple Storage Service S3](#chapter-4-simple-storage-service-s3)
   - [S3 Overview](#s3-overview)
     - [Key-Value Store](#key-value-store)
     - [S3 Standard](#s3-standard)
@@ -38,8 +38,47 @@
     - [S3 Multipart Uploads](#s3-multipart-uploads)
     - [S3 Byte-Range Downloads](#s3-byte-range-downloads)
   - [Backing up Data with S3 Replication](#backing-up-data-with-s3-replication)
+  - [Lab 4.1. Set Up Cross-Region S3 Bucket Replication](#lab-41-set-up-cross-region-s3-bucket-replication)
+    - [Introduction](#introduction)
+    - [Runbooks](#runbooks)
+      - [Create an S3 Bucket and Enable Replication](#create-an-s3-bucket-and-enable-replication)
+      - [Test Replication and Observe Results](#test-replication-and-observe-results)
+  - [Lab 4.2. Creating Amazon S3 Buckets, Managing Objects, and Enabling Versioning](#lab-42-creating-amazon-s3-buckets-managing-objects-and-enabling-versioning)
+    - [Introduction](#introduction)
+    - [Runbooks](#runbooks)
+      - [Create a Public and Private Amazon S3 Bucket](#create-a-public-and-private-amazon-s3-bucket)
+      - [Enable Versioning on the Public Bucket and Validate Access to Different Versions of Files with the Same Name](#enable-versioning-on-the-public-bucket-and-validate-access-to-different-versions-of-files-with-the-same-name)
+    - [Lab 4.3. Create a Static Website Using Amazon S3](#lab-43-create-a-static-website-using-amazon-s3)
+      - [Create S3 Bucket](#create-s3-bucket)
+      - [Enable Static Website Hosting](#enable-static-website-hosting)
+      - [Apply Bucket Policy](#apply-bucket-policy)
+
+<!-- /TOC -->
+    - [S3 One Zone-Infrequent Access](#s3-one-zone-infrequent-access)
+    - [S3 Intelligent Tiering](#s3-intelligent-tiering)
+    - [S3 Glacier](#s3-glacier)
+    - [Glacier Instant Retrieval](#glacier-instant-retrieval)
+    - [Glacier Flexible Retrieval](#glacier-flexible-retrieval)
+    - [Glacier Deep Archive](#glacier-deep-archive)
+  - [Lifecycle Management with S3](#lifecycle-management-with-s3)
+  - [S3 Object Lock and Glacier Vault Lock](#s3-object-lock-and-glacier-vault-lock)
+    - [S3 Object Lock Modes](#s3-object-lock-modes)
+      - [Governance Mode](#governance-mode)
+      - [Compliance Mode](#compliance-mode)
+    - [Retention Periods](#retention-periods)
+    - [Legal Holds](#legal-holds)
+    - [Glacier Vault Lock](#glacier-vault-lock)
+  - [Encrypting S3 Objects](#encrypting-s3-objects)
+    - [Types of Encryption](#types-of-encryption)
+    - [Enforcing Server-Side Encryption](#enforcing-server-side-encryption)
+  - [Optimizing S3 Performance](#optimizing-s3-performance)
+    - [S3 Prefixes Explained](#s3-prefixes-explained)
+    - [S3 Limitations when using SSE-KMS](#s3-limitations-when-using-sse-kms)
+    - [S3 Multipart Uploads](#s3-multipart-uploads)
+    - [S3 Byte-Range Downloads](#s3-byte-range-downloads)
+  - [Backing up Data with S3 Replication](#backing-up-data-with-s3-replication)
   - [Lab Exercises](#lab-exercises)
-    - [Lab 5. Create a Static Website Using Amazon S3](#lab-5-create-a-static-website-using-amazon-s3)
+    - [Lab 4. Create a Static Website Using Amazon S3](#lab-5-create-a-static-website-using-amazon-s3)
       - [Create S3 Bucket](#create-s3-bucket)
       - [Enable Static Website Hosting](#enable-static-website-hosting)
       - [Apply Bucket Policy](#apply-bucket-policy)
@@ -362,14 +401,147 @@ You can get better performance by spreading your reads across different prefixes
   - However, you can turn on replication of delete markers
 
 ---
-## Lab Exercises
+## Lab 4.1. Set Up Cross-Region S3 Bucket Replication
 
-### Lab 5. Create a Static Website Using Amazon S3
+### Introduction
+
+You will explore how to use Amazon S3 to automatically replicate any object stored in our S3 bucket to a different region on the other side of the country. This process ensures your files remain accessible in any extreme scenario where data loss could possibly occur.
+
+### Runbooks
+
+1. Create an S3 Bucket and Enable Replication.
+
+2. Test Replication and Observe Results.
 
 <details>
-<summary>Click here to start Lab 5.</summary>
+<summary>Click here to start Lab 4.1.</summary>
 
-![Lab 5.](../../img/acloudguru/Lab5.png)
+#### 1. Create an S3 Bucket and Enable Replication
+
+1. Navigate to the AWS console > S3 > Click **Create bucket**.
+
+2. Set the following values:
+  - For **Bucket name**, enter `appconfigprod2`.
+  - For **AWS Region**, select `us-west-2`.
+
+3. Under Copy settings from existing bucket, click Choose bucket > select `appconfigprod1` bucket > click **Choose bucket**.
+
+4. Leave the default settings, and click **Create bucket**.
+
+5. Open the `appconfigprod1` bucket > click Management > click **Create replication rule**.
+
+6. Click **Enable Bucket Versioning**, and set the following values:
+  - Under Replication rule configuration, for **Replication rule name**, enter `CrossRegion`.
+  - Under Source bucket, in Choose a rule scope, select **Apply to all objects in the bucket**.
+
+7. Under Destination, set the following parameters:
+  - Select Choose a bucket in this account > click Browse S3 > select `appconfigprod2` bucket.
+  - Click Choose path > click **Enable bucket versioning**.
+
+8. Under IAM role, click the dropdown menu > select **Create new role**.
+
+9. Click **Save**, and when prompted with the Replicate existing objects, choose **No, do not replicate existing objects** > click Submit.
+
+#### 2. Test Replication and Observe Results
+
+1. Open the `appconfigprod1` bucket > click **Upload**.
+
+2. Click **Add file** to upload a file of your choice > click Upload.
+
+3. Open the `appconfigprod2` bucket, and you should see the file you uploaded to `appconfigprod1`.
+
+</details>
+
+---
+## Lab 4.2. Creating Amazon S3 Buckets, Managing Objects, and Enabling Versioning
+
+### Introduction
+
+You will create two S3 buckets and verify public vs. non-public access to the buckets. You will also enable and validate versioning based on uploaded objects.
+
+### Runbooks
+
+1. Create a Public and Private Amazon S3 Bucket
+
+2. Enable Versioning on the Public Bucket and Validate Access to Different Versions of Files with the Same Name
+
+<details>
+<summary>Click here to start Lab 4.2.</summary>
+
+#### 1. Create a Public and Private Amazon S3 Bucket
+
+** Create a Public Bucket**
+
+1. Navigate to the AWS console > S3 > click **Create bucket**.
+
+2. Set the following values:
+  - For **Bucket name**, enter `acg-testlab-public-<random>`.
+  - For **Region**, select `us-east-1`.
+  - For Object Ownership, select **ACLs enabled** and **Bucket owner preferred**.
+
+3. In the Block Public Access settings for this bucket section, uncheck the box for **Block all public access**.
+
+4. Leave the rest of default settings, and click **Create bucket**.
+
+**Create a Private Bucket**
+
+5. Navigate to the AWS console > S3 > click **Create bucket**.
+
+6. Set the following values:
+  - For **Bucket name**, enter `acg-testlab-private-<random>`.
+  - For **Region**, select `us-east-1`.
+
+7. Leave the rest of default settings, and click **Create bucket**.
+
+**Upload a File in the Private Bucket**
+
+8. Open the private bucket > click Upload > click **Add files**, and upload the `cat1.jpg`.
+
+9. Leave the rest of default settings, and click **Upload**.
+
+10. Click the uploaded file to view its properties > open the **Object URL** in a new browser tab.
+  - Since it's a private bucket, you will see an error message.
+
+**Upload a File in the Public Bucket**
+
+11. Repeat the steps above for the private bucket.
+  - You will see an error message because although the bucket is public, the object is not.
+
+12. Back on the `cat1.jpg` page, select Object actions > Make public using ACL > click **Make public**.
+
+13. Open the **Object URL** in a new browser tab.
+  - This time the image should load.
+
+#### 2. Enable Versioning on the Public Bucket and Validate Access to Different Versions of Files with the Same Name
+
+1. Open the public bucket > click Properties > in the Bucket Versioning section, click **Edit**.
+
+2. Click **Enable** > click Save changes.
+
+3. Click Objects > click Upload > click **Add files**.
+
+4. Upload `cat2.jpg` as `cat1.jpg` (rename locally).
+
+5. Click the uploaded file > Properties > click Versions.
+  - You should see there are two versions of the file `cat1.jpg`.
+
+6. Select Object actions > Make public using ACL > click **Make public**.
+
+7. Click Properties > Open the Object URL in a new browser tab.
+  - You should see the new image.
+
+8. Back on the `cat1.jpg` page, click Versions > click the **null** object > Open the Object URL in a new browser tab.
+  - You should see the original image.
+
+</details>
+
+---
+### Lab 4.3. Create a Static Website Using Amazon S3
+
+<details>
+<summary>Click here to start Lab 4.3.</summary>
+
+![Lab 4.3.](../../img/acloudguru/Lab5.png)
 
 #### Create S3 Bucket
 

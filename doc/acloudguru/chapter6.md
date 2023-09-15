@@ -1,10 +1,8 @@
-# Chapter 7. Elastic Block Storage (EBS) and Elastic File System (EFS)
+# Chapter 6. Elastic Block Storage (EBS) and Elastic File System (EFS)
 
 <!-- TOC -->
 
-- [Chapter 7. Elastic Block Storage EBS and Elastic File System EFS](#chapter-7-elastic-block-storage-ebs-and-elastic-file-system-efs)
-  - [EBS Overview](#ebs-overview)
-    - [Solid-State Drives SSD](#solid-state-drives-ssd)
+- [Chapter 6. Elastic Block Storage EBS and Elastic File System EFS](#chapter-6-elastic-block-storage-ebs-and-elastic-file-system-efs)
     - [Hard Disk Drive HDD](#hard-disk-drive-hdd)
     - [IOPS vs. Throughput](#iops-vs-throughput)
     - [Exam Tips](#exam-tips)
@@ -32,28 +30,14 @@
     - [EBS Volumes](#ebs-volumes)
     - [Exam Tips](#exam-tips)
   - [AWS Backup](#aws-backup)
+  - [Lab 6.1. Reduce Storage Costs with EFS](#lab-61-reduce-storage-costs-with-efs)
+    - [Introduction](#introduction)
+    - [Runbooks](#runbooks)
+      - [Create an EFS File System](#create-an-efs-file-system)
+      - [Mount the EFS File System and Test It](#mount-the-efs-file-system-and-test-it)
+      - [Remove Old Data](#remove-old-data)
 
 <!-- /TOC -->
-
----
-## EBS Overview
-
-There are different use cases for each type of Elastic Block Storage (EBS), which are storage volumes or virtual hard disk that you can attach to your EC2.
-
-* Production workloads: Designed for mission-critical workloads
-
-* Highly available: Automatically replicated within a single AZ to protect against hardware failures
-
-* Scalable: Dynamically increase capacity and change the volume type with no downtime or performance impact to your live systems
-
-EBS Volume Types:
-
-### Solid-State Drives (SSD)
-
-* General Purpose SSD (`gp2`): 
-  - 3 IOPS per GiB, up to a max of 16,000 IOPS per volume
-  - `gp2` volumes smaller than 1 TB can burst up to 3,000 IOPS
-  - Good for boot volumes or development and test applications that are not latency sensitive
   - Up to 99.9% durability
 
 * General Purpose SSD (`gp3`):
@@ -381,3 +365,160 @@ Benefits of AWS Backup:
 * Automation: You can create automated backup schedules and retention policies. You can also create lifecycle policies, allowing you to expire unnecessary backups after a period of time.
 
 * Improved Compliance: Backup policies can be enforced while backups can be encrypted both at rest and in transit, allowing alignment to regulatory compliance. Auditing is made easy due to a consolidated view of backups across many AWS services.
+
+---
+## Lab 6.1. Reduce Storage Costs with EFS
+
+### Introduction
+
+You will modify an existing EC2 instance to use a shared Elastic File System (EFS) storage volume instead of duplicated Elastic Block Storage (EBS) volumes. This reduces the costs significantly, as we only need to store data in one location to share among multiple EC2 instances.
+
+### Runbooks
+
+1. Create an EFS File System.
+
+2. Mount the EFS File System and Test It.
+
+3. Remove Old Data.
+
+<details>
+<summary>Click here to start Lab 6.1.</summary>
+
+#### 1. Create an EFS File System
+
+1. Navigate to the AWS console > EFS > click **Create file system**.
+
+2. Fill in the file system details:
+  - For **Name**, enter `SharedWeb`.
+  - For **VPC**, select the provided VPC.
+
+3. Click **Customize**.
+  - For **Storage class**, select One Zone.
+  - For **AZ**, leave `us-east-1a` selected.
+
+4. Click Next > Next > Next > Create.
+
+5. After the EFS is created, click View file system > Network.
+
+6. After the mount target is available, click Manage on the right.
+
+7. Under Security groups > remove the default SG > use the dropdown menu to select **EC2SecurityGroup** > click Save.
+
+**Configure the Security Groups**
+
+8. Navigate to EC2 > Security Groups > click the **EC2SecurityGroup**.
+
+9. Select the Inbound rules > click **Edit inbound rules**.
+
+10. Click **Add rule**.
+  - For **Type**, use the dropdown to select NFS.
+  - For **Source**, use the text box to select `0.0.0.0/0`.
+
+11. Click **Save rules**.
+
+12. Select EC2 Dashboard > select **Instances (running)** > select `webserver-01` > click Connect > Connect.
+  - This should take you to a new terminal showing your EC2 instance in a new browser tab.
+
+#### 2. Mount the EFS File System and Test It
+
+**Mount the File System**
+
+1. In the terminal, list your block devices > view the data.
+  - You should see `file.01` to `file.10` listed.
+
+```sh
+lsblk
+ls /data
+```
+
+2. Create a directory to attach your EFS volume.
+
+```sh
+sudo mkdir /efs
+```
+
+3. Navigate back to the EFS tab showing the SharedWeb file system details > click Attach > select **Mount via IP**.
+
+4. Copy the provided NFS command > Navigate back to the terminal > paste in the command > Edit the mount point by changing `efs` to `/efs` in the command.
+
+```sh
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 10.0.0.47:/ /efs
+```
+
+**Test the File System**
+
+5. View the newly mounted EFS volume > List the block devices > View the mounts.
+  - Nothing in the volume.
+  - Your NFS mount is not yet listed.
+  - You should see that your NFS share is mounted on `/efs`.
+
+```sh
+ls /efs
+lsblk
+mount
+```
+
+6. View file system mounts > Move all files from `/data` to `/efs` > View the files.
+  - You should see that your NFS share is mounted on `/efs`.
+  - This time a list of files should be in the EFS.
+
+```sh
+df -h
+sudo rsync -rav /data/* /efs
+ls /efs
+```
+
+#### 3. Remove Old Data
+
+**Remove Data from `webserver-01`**
+
+1. Unmount the partition > Open and edit the `/etc/fstab` file.
+
+```sh
+sudo umount /data
+sudo nano /etc/fstab
+```
+
+2. Remove the line starting with `UUID` by pressing `Ctrl-K`.
+
+3. Build a new mount point:
+  - Navigate back to the EFS tab > ensure Attach dialog is still open.
+  - Copy the IP address listed in the provided command.
+  - Navigate back to the terminal and paste the IP address.
+  - Press TAB twice so your cursor align with the `/` on the first line, and the add `/data`.
+  - Press TAB and then SPACE once so your cursor aligns with `ext4` on the first line, and then add `nfs4`.
+  - Navigate back to the eFS tab > copy the options from the command (starting with `nfsvers` and ending with `noresvport`).
+  - Navigate back to the terminal and paste your copied options so they align with `defaults`, `discard` on the first line.
+  - Press TAB and then add `0 0` to the end of your mount point entry.
+
+4. Your mount point should look like this:
+
+```sh
+<NFS MOUNT IP>:/ 		/data 	nfs4 	 <OPTIONS> 0 0
+```
+
+5. Press Ctrl-X to exit Nano > Press Y to save your changes > Press Enter to write to the file.
+
+6. Unmount the `/efs` to confirm your edits were successful > View the file systems > Try and mount everything that is not already mounted > View the file systems again to check if `10.0.0.180:/` is mounted > View the contents of `/data`.
+  - You should see that you don't have `/data` or `/efs` mounted.
+  - You should see the NFS share is now mounted on `/data`.
+  - You should see `file.01` - `file.10` listed.
+
+```sh
+sudo umount /efs
+df -h
+sudo mount -a
+df -h
+ls /data
+```
+
+**Remove the EBS Volume Attached to `webserver-01`**
+
+7. Navigate back to EC2 > select `webserver-01` > Resources > click Volumes.
+
+8. Expand Attached Instances to find the 10 GiB volume attached > click the checkbox next to the volume.
+
+9. Use the Actions dropdown to select **Detach volume** > click Detach.
+  - When the volume is detached, it will show as Available.
+
+10. Click the checkox next to the same volume again > use the Actions dropdown to select **Delete volume** > click Delete.

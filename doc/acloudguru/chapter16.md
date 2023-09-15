@@ -69,8 +69,15 @@
     - [Benefits and Use Cases](#benefits-and-use-cases)
     - [Exam Tips](#exam-tips)
   - [Leveraging AWS Security Hub for Collecting Security Data](#leveraging-aws-security-hub-for-collecting-security-data)
-  - [Lab 11.1. Using Secrets Manager to Authenticate with an RDS Database Using Lambda](#lab-111-using-secrets-manager-to-authenticate-with-an-rds-database-using-lambda)
+  - [Lab 16. Using Secrets Manager to Authenticate with an RDS Database Using Lambda](#lab-16-using-secrets-manager-to-authenticate-with-an-rds-database-using-lambda)
     - [Introduction](#introduction)
+    - [Runbooks](#runbooks)
+      - [Create a Lambda Function](#create-a-lambda-function)
+      - [Create the MySQL Layer, and Copy Your Code to the Lambda Function](#create-the-mysql-layer-and-copy-your-code-to-the-lambda-function)
+      - [Create Table in the RDS Database Using Lambda to Check Connectivity](#create-table-in-the-rds-database-using-lambda-to-check-connectivity)
+      - [Modify the Lambda IAM Role](#modify-the-lambda-iam-role)
+      - [Create a Secret in Secrets Manager](#create-a-secret-in-secrets-manager)
+      - [Test Connectivity from Lambda to RDS Using Credentials from AWS Secrets Manager](#test-connectivity-from-lambda-to-rds-using-credentials-from-aws-secrets-manager)
 
 <!-- /TOC -->
 
@@ -652,11 +659,229 @@ Use cases:
 * *Correlate security findings to discover new insights* - aggregate all your security findings in one place to more easily identify threats and alerts
 
 ---
-## Lab 11.1. Using Secrets Manager to Authenticate with an RDS Database Using Lambda
-
-<details>
-<summary>Click here to start Lab 11.1.</summary>
+## Lab 16. Using Secrets Manager to Authenticate with an RDS Database Using Lambda
 
 ### Introduction
 
-</details>
+You will connect to a MySQL RDS database from an AWS Lambda function using a username and password, and then you will hand over credential management to the AWS Secrets Manager service.
+
+You will then use the Secrets Manager API to connect to the database instead of hard-coding credentials in your Lambda function.
+
+### Runbooks
+
+1. Create a Lambda Function.
+
+2. Create the MySQL Layer, and Copy Your Code to the Lambda Function.
+
+3. Create Table in the RDS Database Using Lambda to Check Connectivity.
+
+4. Modify the Lambda IAM Role.
+
+5. Create a Secret in Secrets Manager.
+
+6. Test Connectivity from Lambda to RDS Using Credentials from AWS Secrets Manager.
+
+<details>
+<summary>Click here to start Lab 16.</summary>
+
+#### 1. Create a Lambda Function
+
+1. Navigate to the AWS console > RDS > click DB instances > click the provided RDS.
+  - Under **Connectivity & security**, copy the value for Endpoint.
+
+2. In a new tab > navigate to Lambda > click **Create a function**.
+  - Select the **Author from scratch** option.
+  - For **Function name**, enter `testRDS`.
+  - For **Runtime**, select Node.js 18.x.
+
+3. Expand **Advanced settings**, click Enable VPC.
+  - For **VPC**, select the provided VPC.
+  - For **Subnets**, select the two subnets that have Private in their name.
+  - For **Security groups**, select `DatabaseSecurityGroup`.
+
+4. Click **Create function**.
+
+#### 2. Create the MySQL Layer, and Copy Your Code to the Lambda Function
+
+1. Once the function has been created, select **Configuration**.
+  - Next to General configuration > click **Edit**.
+  - For **Timeout**, set to 6 seconds > click Save.
+
+2. Select the hamburger menu > click Layers > click **Create layer**.
+  - For **Name**, enter `mysql`.
+  - For **Upload a .zip file**, click Upload > upload the MySQL Library ZIP file provided.
+  - For **Compatible runtimes**, select Node.js 18.x.
+  - Click **Create**.
+
+3. Select the hamburger menue > click Functions > select `testRDS`.
+
+4. Scroll down to Layers, click **Add a layer** > select Custom layers.
+  - For **Custom layers**, select `mysql`.
+  - For **Version**, select the displayed version.
+  - Click **Add**.
+
+#### 3. Create Table in the RDS Database Using Lambda to Check Connectivity
+
+1. In the Code source section, expand `testRDS` > `index.mjs`.
+
+2. Delete the existing source code, and replace it with the following code:
+
+```js
+import mysql from 'mysql2/promise';
+
+export const handler = async (event, context, callback) => {
+  try {
+    const connection = await mysql.createConnection({
+      host: "<RDS Endpoint>",
+      user: "username",
+      password: "password",
+      database: "example",
+    });
+
+    // Create 'pets' table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS pets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        age INT NOT NULL
+      )
+    `);
+
+    console.log('Table created: pets');
+
+    // List all tables
+    const [rows] = await connection.execute('SHOW TABLES');
+    console.log('Tables:');
+    rows.forEach((row) => {
+      console.log(row[`Tables_in_example`]);
+    });
+
+    connection.end();
+
+    callback(null, {
+      statusCode: 200,
+      body: 'Tables listed successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    callback(err, {
+      statusCode: 500,
+      body: 'Error listing tables',
+    });
+  }
+};
+```
+
+3. Replace the `<RDS Endpoint>` placeholder with the endpoint value you previously copied from RDS.
+  - Ensure it remains wrapped in quotes.
+  - Click **Deploy**.
+
+4. Once the function is updated, click **Test**.
+  - In the Configure test event, for **Event name**, enter `test`.
+  - Click **Save**.
+
+5. Click **Test** again.
+  - The `Response` should return a `statusCode` of `200`.
+
+#### 4. Modify the Lambda IAM Role
+
+1. Click the **Configuration** tab > select Permissions > click the link under Resource summary to open IAM.
+
+2. On the right side of the Permission policies box, click Add permissions > **Attach policies**.
+  - Search for and select the checkbox next to `SecretsManagerReadWrite` policy name.
+  - Click **Add permissions**.
+
+3. Go back to Lambda, and click **Refresh**.
+  - Observe all the additional permissions the role has access to.
+
+#### 5. Create a Secret in Secrets Manager
+
+1. In a new browser tab, navigate to Secrets Manager > click **Store a new secret**.
+
+2. With Credentials for Amazon RDS database selected, set the following values:
+  - **User name**: Enter `username`.
+  - **Password**: Enter `password`.
+  - **Encryption key**: Leave as default option.
+  - **Database**: Select the provided DB instance.
+  - Click **Next**.
+  - For **Secret name**, enter `RDScredentials`.
+  - Leave the rest of the defaults and click **Next**.
+  - Toggle the **Automatic rotation** option to enable it.
+  - **Time unit**: Days, enter `1`.
+  - Leave **Create a rotation function** selected.
+  - **SecretsManager**: Enter `rotateRDS`.
+  - Click Next > click **Store**.
+
+3. Refresh your page and click `RDScredentials` > in the Secret value section, click **Retrieve secret value**.
+  - You should see the password listed as `password`.
+
+4. Go back to the Lambda console > click the hamburger menu > select Functions > click Refresh.
+  - You should also see the `SecretsManagerrotateRDS` function.
+
+5. To check if the function is running, click the hamburger menue > click Applications.
+  - The function should show as **Create complete**.
+
+6. Back in Secrets Manager > click Refresh > click **Retrieve secret value** to see the secret again.
+  - You should no longer see `password` as the password value.
+  - Instead, the new value should be a string of characters.
+
+#### 6. Test Connectivity from Lambda to RDS Using Credentials from AWS Secrets Manager
+
+1. Go back to Lambda, select Functions > select `testRDS` > `index.mjs`.
+
+2. Remove all of the existing code and add the following new code:
+
+```js
+import mysql from 'mysql2/promise';
+import AWS from 'aws-sdk';
+
+const secretName = 'RDScredentials';
+const region = 'us-east-1';
+const rdsEndpoint = '<RDS Endpoint>';
+const databaseName = 'example';
+
+AWS.config.update({ region: region });
+
+const secretsManager = new AWS.SecretsManager();
+
+export const handler = async (event, context) => {
+  try {
+    const data = await secretsManager.getSecretValue({ SecretId: secretName }).promise();
+    const secret = JSON.parse(data.SecretString || Buffer.from(data.SecretBinary, 'base64').toString('ascii'));
+
+    const { username, password } = secret;
+
+    const connection = await mysql.createConnection({
+      host: rdsEndpoint,
+      user: username,
+      password: password,
+      database: databaseName,
+    });
+
+    const [rows] = await connection.execute('SHOW TABLES');
+
+    console.log('Tables:');
+    rows.forEach((row) => {
+      console.log(row[`Tables_in_${databaseName}`]);
+    });
+
+    connection.end();
+
+    return {
+      statusCode: 200,
+      body: 'Tables listed successfully',
+    };
+  } catch (err) {
+    console.error('Error:', err.message);
+    return {
+      statusCode: 500,
+      body: 'Error listing tables',
+    };
+  }
+};
+```
+
+3. Replace the `<RDS Endpoint>` placeholder with the value you copied.
+
+4. Click Deploy > click **Test**.
+  - Once complete, the `Response` should have a `statusCode` of `200`.

@@ -3,6 +3,9 @@
 <!-- TOC -->
 
 - [Chapter 7. Databases](#chapter-7-databases)
+  - [RDS Overview](#rds-overview)
+    - [OLTP vs. OLAP](#oltp-vs-olap)
+    - [What is Multi-AZ?](#what-is-multi-az)
     - [Unplanned Failure or Maintenance](#unplanned-failure-or-maintenance)
   - [Increasing Read Performance with Read Replicas](#increasing-read-performance-with-read-replicas)
     - [Exam Tips](#exam-tips)
@@ -16,14 +19,27 @@
     - [On-Demand Capacity](#on-demand-capacity)
     - [Security](#security)
   - [When Do We Use DynamoDB Transactions?](#when-do-we-use-dynamodb-transactions)
+    - [ACID for Databases](#acid-for-databases)
+    - [ACID with DynamoDB](#acid-with-dynamodb)
+    - [Use Cases](#use-cases)
+    - [Transactions](#transactions)
   - [Saving Your Data with DynamoDB Backups](#saving-your-data-with-dynamodb-backups)
+    - [On-Demand Backup and Restore](#on-demand-backup-and-restore)
+    - [Point-in-Time Recovery PITR](#point-in-time-recovery-pitr)
   - [Taking Your Data Global with DynamoDB Streams and Global Tables](#taking-your-data-global-with-dynamodb-streams-and-global-tables)
+    - [DynamoDB Streams](#dynamodb-streams)
+    - [Global Tables](#global-tables)
   - [Operating MongoDB-Compatible Databases in Amazon DocumentDB](#operating-mongodb-compatible-databases-in-amazon-documentdb)
+    - [MongoDB](#mongodb)
+    - [Amazon DocumentDB](#amazon-documentdb)
   - [Running Apache Cassandra Workloads with Amazon Keyspaces](#running-apache-cassandra-workloads-with-amazon-keyspaces)
+    - [Amazon Keyspaces](#amazon-keyspaces)
   - [Implementing Graph Databases Using Amazon Neptune](#implementing-graph-databases-using-amazon-neptune)
+    - [Amazon Neptune Use Cases](#amazon-neptune-use-cases)
   - [Leveraging Amazon Quantum Ledger Database QLDB for Ledger Databases](#leveraging-amazon-quantum-ledger-database-qldb-for-ledger-databases)
+    - [Amazon Quantum Ledger Database QLDB Use Cases](#amazon-quantum-ledger-database-qldb-use-cases)
   - [Analyzing Time-Series Data with with Amazon Timestream](#analyzing-time-series-data-with-with-amazon-timestream)
-  - [Exam Tips](#exam-tips)
+    - [Amazon Timestream Use Cases](#amazon-timestream-use-cases)
   - [Lab 7. Set Up a WordPress Site Using EC2 and RDS](#lab-7-set-up-a-wordpress-site-using-ec2-and-rds)
     - [Introduction](#introduction)
     - [Runbooks](#runbooks)
@@ -34,6 +50,31 @@
       - [Complete Wordpress Installation and Test](#complete-wordpress-installation-and-test)
 
 <!-- /TOC -->
+
+---
+## RDS Overview
+
+Relational Database System (RDS) is generally used for Online Transaction Processing (OLTP) workloads, but not suitable for analyzing large amounts of data or Online Analytical Processing (OLAP). Use a data warehouse like **RedShift**, which is optimized for OLAP.
+
+### OLTP vs. OLAP
+
+* Online Transaction Processing (OLTP):
+  - **Processes data from transactions in real time**, e.g. customer orders, banking transactions, payments, and booking systems.
+  - All about data processing and completing large numbers of small transactions in real time.
+
+* Online Analytical Processing (OLAP):
+  - **Processes complex queries to analyze historical data**, e.g. analyzing net profit figures from the past 3 years and sales forecasting.
+  - All about data analysis using large amounts of data, as well as complex queries that take a long time to complete.
+
+### What is Multi-AZ?
+
+With Multi-AZ, RDS creates an exact copy of your production database in another AZ in real-time. Which RDS types can be configured as Multi-AZ?
+* SQL Server
+* MySQL
+* MariaDB
+* Oracle
+* PostgreSQL
+* Amazon Aurora (always Multi-AZ)
 
 **Multi-AZ is for disaster recovery**, not for improving performance, so you cannot connect to the standby when the primary database is active.
 
@@ -163,29 +204,174 @@ Its flexible data model and reliable performance make it a great fit for mobile,
 ---
 ## When Do We Use DynamoDB Transactions?
 
+### ACID for Databases
+
+* **Atomic** - All changes to the data must be performed successfully or not at all.
+
+* **Consistent** - Data must be in a consistent state before and after the transaction.
+
+* **Isolated** - No other processes can change the data while the transaction is running.
+
+* **Durable** - The changes made by a transaction must persist.
+
+### ACID with DynamoDB
+
+DynamoDB transactions provide developers ACID across one or more tables within a single AWS account and region.
+
+You can use transactions building applications that require coordinated inserts, deletes, or updates to multiple items as part of a single logical business operation.
+
+### Use Cases
+
+* Processing financial transactions.
+
+* Fulfilling and managing orders.
+
+* Building multiplayer game engines.
+
+* Coordinating actions across distributed components and services.
+
+### Transactions
+
+* Read options - 3 options: eventual consistency, strong consistency and transactional.
+
+* Write options - 2 options: standard and transaction.
+
+* Up to 25 items or 4 MB of data.
+
 ---
 ## Saving Your Data with DynamoDB Backups
+
+### On-Demand Backup and Restore
+
+* On-Demand - Full backups at any time with zero impact on table performance or availability.
+
+* Retention - Consistent within seconds and retained until deleted.
+
+* Region - Operates within same region as the source table.
+
+### Point-in-Time Recovery (PITR)
+
+* Protects against accidental writes or deletes.
+
+* Restores to any point in the last 35 days.
+
+* Incremental backups.
+
+* Not enabled by default.
+
+* Latest restorable is 5 minutes in the past.
 
 ---
 ## Taking Your Data Global with DynamoDB Streams and Global Tables
 
+### DynamoDB Streams
+
+* FIFO - Time-ordered sequence of item-level changes in a table.
+
+* Retention - Stored for 24 hours.
+
+* Shards - Inserts, updates, and deletes.
+
+* Lambda - Combines with Lambda functions for functionality like stored procedures.
+
+![Example Diagram](../../img/acloudguru/Chp07.1.png)
+
+### Global Tables
+
+DynamoDB Global Tables are AWS managed multi-master, multi-region replication.
+
+* Globally distributed applications.
+
+* Need to enable DynamoDB streams.
+
+* Multi-region redundancy for disaster recovery or high availability.
+
+* No application coding required.
+
+* Replication latency under 1 second.
+
 ---
 ## Operating MongoDB-Compatible Databases in Amazon DocumentDB
+
+### MongoDB
+
+MongoDB is a NoSQL document database that allows for scalability and flexibility with your data as well as robust querying and indexing features.
+
+### Amazon DocumentDB
+
+Amazon DocumentDB allows you to manage MongoDB on the AWS cloud. It's a managed database service that scales with your workloads and safely and durably stores your database information.
+
+* Managed - No manual tasks such as cluster management, configuration backups, or monitoring production workloads.
+
+* Migration - Use AWS Database Migration Services to migrate on-premises MongoDB to DocumentDB.
 
 ---
 ## Running Apache Cassandra Workloads with Amazon Keyspaces
 
+Apache Cassandra is a distributed NoSQL database primarily used for big data solutions. For example, Netflix uses Cassandra on their backend.
+
+### Amazon Keyspaces
+
+Amazon Keyspaces is a fully managed Cassandra service.
+
+- Managed - No manual tasks such as managing servers, software patching etc.
+
+- Serverless - Only pay for resources you consume, and the service can automatically scale tables up and down in response to your applications.
+
+- Migration - Use AWS Database Migration Services to migrate on-premises Cassandra to Keyspaces.
+
 ---
 ## Implementing Graph Databases Using Amazon Neptune
+
+Graph database is stored just like you might sketch relationships on a whiteboard. A graph database stores nodes and relationships instead of tables or documents.
+
+### Amazon Neptune Use Cases
+
+Amazon Neptune is a fast, reliable, fully managed graph database service that makes it easy to build and run applications.
+
+* Identity Graph - Build identity graphs such as social graphs, and accelerate updates for ad targeting, personalization, and analytics.
+
+* Knowledge Graph - Build product graphs with topical data, model general information, and help users quickly navigate highly connected datasets.
+
+* Fraud Patterns - Build graph queries for near real-time identity fraud detection in financial and purchase transactions.
+
+* Security Graph - Proactively detect and investigate IT infrastructure using a layered security approach. Visualize all infrastructure to plan, predict, and mitigate risk.
 
 ---
 ## Leveraging Amazon Quantum Ledger Database (QLDB) for Ledger Databases
 
+Ledger database is a NoSQL database that is immutable, transparent, and has a cryptographically verifiable transaction log that is owned by one authority.
+
+You cannot update a record in a ledger database. Instead, an update adds a new record to the database.
+
+### Amazon Quantum Ledger Database (QLDB) Use Cases
+
+Amazon QLDB is a fully managed ledger database.
+
+* Cryptocurrency - create an immutable database for crytocurrency transactions.
+
+* Financial - create a complete and accurate record of all financial transactions.
+
+* Supply Chain - record a history of each transaction, and provide details of every batch manufactured, shipped, stored, and sold.
+
+* Prevent Fraud or Accidental - track a claim over its lifetime, and cryptographically verify data integrity to make the application resilient against data entry errors and manipulation.
+
+* Centralize Digital Records - Implement a system-of-record application to create a complete, centralized record of employee details, such as payroll, bonus and benefits.
+
 ---
 ## Analyzing Time-Series Data with with Amazon Timestream
 
----
-## Exam Tips
+Time series data are data points that are logged over a series of time, allowing you to track your data over time.
+
+### Amazon Timestream Use Cases
+
+Amazon Timestream is a fully managed time-series database. You can analyze trillions of events per day up to 1,000 times faster and 1/10th the cost of traditional relational databases.
+
+* IOT - used primarily to collect data over time for many industries.
+
+* Analytics - Large web sites need to analyze incoming and outgoing web traffic.
+
+* DevOps - Applications that change in response to users may need to be monitored continuously so they can scale correctly.
 
 ---
 ## Lab 7. Set Up a WordPress Site Using EC2 and RDS
@@ -292,6 +478,5 @@ sudo nano wp-config.php
   - Enter the username and password that you just created.
 
 3. To view the website you just created, click home icon in the top menu bar > click **Visit Site** to visit your new site.
-
 
 </details>

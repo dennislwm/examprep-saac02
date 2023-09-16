@@ -3,9 +3,6 @@
 <!-- TOC -->
 
 - [Chapter 7. Databases](#chapter-7-databases)
-  - [RDS Overview](#rds-overview)
-    - [OLTP vs. OLAP](#oltp-vs-olap)
-    - [What is Multi-AZ?](#what-is-multi-az)
     - [Unplanned Failure or Maintenance](#unplanned-failure-or-maintenance)
   - [Increasing Read Performance with Read Replicas](#increasing-read-performance-with-read-replicas)
     - [Exam Tips](#exam-tips)
@@ -29,33 +26,14 @@
   - [Exam Tips](#exam-tips)
   - [Lab 7. Set Up a WordPress Site Using EC2 and RDS](#lab-7-set-up-a-wordpress-site-using-ec2-and-rds)
     - [Introduction](#introduction)
+    - [Runbooks](#runbooks)
+      - [Create RDS Database](#create-rds-database)
+      - [Install Apache and Dependencies](#install-apache-and-dependencies)
+      - [Configure WordPress](#configure-wordpress)
+      - [Modify Security Groups](#modify-security-groups)
+      - [Complete Wordpress Installation and Test](#complete-wordpress-installation-and-test)
 
 <!-- /TOC -->
-
----
-## RDS Overview
-
-Relational Database System (RDS) is generally used for Online Transaction Processing (OLTP) workloads, but not suitable for analyzing large amounts of data or Online Analytical Processing (OLAP). Use a data warehouse like **RedShift**, which is optimized for OLAP.
-
-### OLTP vs. OLAP
-
-* Online Transaction Processing (OLTP):
-  - **Processes data from transactions in real time**, e.g. customer orders, banking transactions, payments, and booking systems.
-  - All about data processing and completing large numbers of small transactions in real time.
-
-* Online Analytical Processing (OLAP):
-  - **Processes complex queries to analyze historical data**, e.g. analyzing net profit figures from the past 3 years and sales forecasting.
-  - All about data analysis using large amounts of data, as well as complex queries that take a long time to complete.
-
-### What is Multi-AZ?
-
-With Multi-AZ, RDS creates an exact copy of your production database in another AZ in real-time. Which RDS types can be configured as Multi-AZ?
-* SQL Server
-* MySQL
-* MariaDB
-* Oracle
-* PostgreSQL
-* Amazon Aurora (always Multi-AZ)
 
 **Multi-AZ is for disaster recovery**, not for improving performance, so you cannot connect to the standby when the primary database is active.
 
@@ -212,9 +190,108 @@ Its flexible data model and reliable performance make it a great fit for mobile,
 ---
 ## Lab 7. Set Up a WordPress Site Using EC2 and RDS
 
+### Introduction
+
+You will create an RDS database, install a web server and configure WordPress to connect to the RDS database. You will then run the final configuration through the web browser and will be presented with a working WordPress blog.
+
+### Runbooks
+
+1. Create RDS Database.
+
+2. Install Apache and Dependencies.
+
+3. Configure WordPress.
+
+4. Modify Security Groups.
+
+5. Complete Wordpress Installation and Test.
+
 <details>
 <summary>Click here to start Lab 7.</summary>
 
-### Introduction
+#### 1. Create RDS Database
+
+1. Navigate to the AWS console > RDS > click **Create database** > select Standard create.
+
+2. Set the following parameters:
+  - Under Engine options, select **MySQL**.
+  - Under Templates, select **Free Tier**.
+  - For **DB instance identifier**, enter `wordpress`.
+  - Enter `wordpress` for both Master username and password.
+  - Under VPC security group, ensure **Choose existing**.
+  - Under Existing VPC security group, select the non-default security group from the dropdown and remove the default security group.
+  - Under Availability zone, select `us-east-1a`.
+  - Expand Additional configuration, and for **Initial database name**, enter `wordpress`.
+  - Under Backups, uncheck **Enable automatic backups option**.
+  - Click **Create database**.
+
+#### 2. Install Apache and Dependencies
+
+1. In a new browser tab > navigate to EC2 > click Instances (running) > click the checkbox next to `webserver-01` > click Connect > click Connect.
+
+2. In the terminal:
+  - Install the Apache2 web server and libraries
+  - View the newly created directory
+  - Move the wordpress folder and view the contents of the wordpress folder
+  - Move the Apache configuration file
+  - Restart the Apache2 web server
+
+```sh
+sudo apt install apache2 libapache2-mod-php php-mysql
+cd /var/www/
+ls
+sudo mv /wordpress .
+ls
+cd wordpress
+ls
+sudo mv 000-default.conf /etc/apache2/sites-enabled/
+sudo apache2ctl restart
+```
+
+#### 3. Configure WordPress
+
+1. In the terminal:
+  - Open the WordPress config file for editing.
+
+```sh
+sudo nano wp-config.php
+```
+
+2. Return to the RDS tab > click `wordpress` database.
+  - In the **Connectivity & security** tab, copy the Endpoint.
+
+3. Return to the terminal:
+  - Change the line `define('DB_HOST', 'localhost');`
+  - Replace `localhost` with the RDS endpoint.
+  - Ensure the endpoint is wrapped in quotes.
+
+4. Save and exit by pressing Ctrl-X > Enter `Y` > Press **Enter**.
+
+#### 4. Modify Security Groups
+
+1. Return to EC2 tab, under **Networks & Security**, click Security Groups.
+  - Click the checkmark next to the non-default security group.
+  - Click the Inbound rules tab > click Edit inbound rules > click **Add rule**.
+
+2. For the new rule:
+  - For **Type**, select `MYSQL/Aurora`.
+  - In the dropdown menu to the right of the Source column, find and select the non-default security group.
+  - Click **Save rules**.
+
+#### 5. Complete Wordpress Installation and Test
+
+1. Return to the EC2 tab > copy the public IP > in a new browser tab, paste the IP address.
+
+2. On the WordPress installation page, enter the following information:
+  - **Site Title**: `A Cloud Guru`.
+  - **Username**: `guru`.
+  - **Password**: select a strong password.
+  - **Your Email**: `test@test.com`.
+  - Click **Install WordPress**
+  - Click **Log in**
+  - Enter the username and password that you just created.
+
+3. To view the website you just created, click home icon in the top menu bar > click **Visit Site** to visit your new site.
+
 
 </details>

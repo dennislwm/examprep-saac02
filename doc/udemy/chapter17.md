@@ -35,8 +35,37 @@ The order of messages leaving a FIFO queue is governed by three rules:
 
 3. If a message batch is still not full, go back to rule 1.
 
+---
+## Amazon Kinesis
+
+Amazon Kinesis makes it easy to collect, process, and analyze streaming data in real-time, such as application logs, IoT telemetry data etc.
+
+There are four types of Kinesis:
+
+* Kinesis Data Streams - capture, process and store data.
+
+* Kinesis Data Firehose - load data into AWS data lakes, data stores and analytic services, such as S3, Redshift, OpenSearch, and service providers like Datadog, Splunk etc.
+
+* Kinesis Data Analytics - transform and analyze data with SQL or Apache Flink.
+
+* Kinesis Video Streams - capture, process and store video.
+
+---
+## AWS Kinesis Best Practices
+
+A common use case is to consolidate and enrich logs from applications in real-time to proactively identify and resolve failure scenarios to significantly reduce application downtime.
+
+To help ingest real-time data, you can use Amazon Kinesis Data Streams, which can continuously capture GBs of data per second from hundreds of thousands of sources. You can then use the following resource to process records in a Kinesis data stream:
+
+* AWS Lambda - used for processing individual shards, focusing on business logic, without worrying about polling, checkpointing and error handling complexities. For example, filtering out non-critical logs from an application.
+
+* AWS Kinesis Data Analytics - used for correlation of events of different shards, stateful stream processing, such as windowed aggregations.
+
+* AWS Kinesis Data Firehose - used for buffering large volumes of streaming data before writing elsewhere.
 
 ---
 ## References
 
 * [Solving Complex Ordering Challenges with Amazon SQS FIFO Queues](https://aws.amazon.com/blogs/compute/solving-complex-ordering-challenges-with-amazon-sqs-fifo-queues/)
+
+* [Best practices for consuming Amazon Kinesis Data Streams using AWS Lambda](https://aws.amazon.com/blogs/big-data/best-practices-for-consuming-amazon-kinesis-data-streams-using-aws-lambda/)

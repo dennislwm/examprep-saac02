@@ -1,18 +1,38 @@
-# Chapter 8. High Availability and Scalability: ELB & ASG
-
 <!-- TOC -->
 
-- [Chapter 8. High Availability and Scalability: ELB & ASG](#chapter-8-high-availability-and-scalability-elb--asg)
-    - [ALB Authentication](#alb-authentication)
-        - [Authentication Flow](#authentication-flow)
-    - [ASG Scaling Policy](#asg-scaling-policy)
-        - [ASG Scaling Cooldown](#asg-scaling-cooldown)
+- [ELB](#elb)
+    - [Connection Draining](#connection-draining)
+- [ALB Authentication](#alb-authentication)
+    - [Authentication Flow](#authentication-flow)
+- [Auto Scaling Group](#auto-scaling-group)
+    - [Configure Instance Tenancy in a Launch Configuration or Launch Template](#configure-instance-tenancy-in-a-launch-configuration-or-launch-template)
+- [ASG Scaling Policy](#asg-scaling-policy)
+    - [ASG Scaling Cooldown](#asg-scaling-cooldown)
+- [ASG Termination Policy](#asg-termination-policy)
+    - [Default Termination Policy](#default-termination-policy)
+- [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
+- [References](#references)
+
+<!-- /TOC -->
     - [ASG Termination Policy](#asg-termination-policy)
         - [Default Termination Policy](#default-termination-policy)
     - [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
     - [References](#references)
 
 <!-- /TOC -->
+
+---
+## ELB
+
+ELB distributes incoming traffic across multiple EC2 instances. When combined with ASG, the two features allow you to create a system that automatically adds and removes EC2 instances in response to changing load.
+
+### Connection Draining
+
+This feature aims squarely at the intersection of activities of both ELB and ASG. While capacity management activities will take place from time to time, you may want to avoid breaking open network connections while taking an instance out of service, updating its software, or replacing it with a fresh instance that contains updated software.
+
+You can avoid this situation by enabling Connection Draining for your ELB, and entering a timeout between one second and 1 hour. When Connection Draining is enabled, the process of deregistering an instance from an ELB gains an additional step.
+
+For the duration of the configured timeout, the ELB will allow existing, "in-flight" requests made to an instance to complete, but it will not send any new requests to the instance. Once the timeout is reached, any remaining connections will be forcibly closed.
 
 ---
 ## ALB Authentication
@@ -50,6 +70,27 @@ The following workflow represents how an ALB uses OIDC to authenticate users:
 10. The target sends a response back to the ALB.
 
 11. The ALB sends the final response to the user.
+
+---
+## Auto Scaling Group
+
+### Configure Instance Tenancy in a Launch Configuration or Launch Template
+
+You can specify one of three tenancy options in a launch configuration (`host` not available) or launch template:
+
+* Shared (`default`) - Your instances run on a shared physical hardware.
+
+* Dedicated Instance (`dedicated`) - Your instances run on a single-tenant hardware.
+
+* Dedicated Host (`host`) - Your instances run on a physical server with EC2 instance capacity fully dedicated to your use, an isolated server with configurations that you can control.
+
+The following table summarizes the instance placement tenancy of the ASG instances launched in a VPC.
+
+| Launch configuration tenancy | VPC tenancy = `default`  | VPC tenancy = `dedicated` |
+|:----------------------------:|:------------------------:|:-------------------------:|
+|        not specified         | shared-tenancy instances | single-tenancy instances  |
+|          `default`           | shared-tenancy instances | single-tenancy instances  |
+|         `dedicated`          | single-tenancy instances | single-tenancy instances  |
 
 ---
 ## ASG Scaling Policy
@@ -126,6 +167,13 @@ Sometimes, you cannot determine why ASG didn't terminate an unhealthy instance. 
 ## References
 
 * [Authenticate users using an Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html)
+
 * [Work with Amazon EC2 Auto Scaling termination policies](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-termination-policies.html)
+
 * [Why did Amazon EC2 Auto Scaling terminate an instance?](https://repost.aws/knowledge-center/auto-scaling-instance-how-terminated)
+
 * [Why didn't Amazon EC2 Auto Scaling terminate an unhealthy instance?](https://repost.aws/knowledge-center/auto-scaling-terminate-instance)
+
+* [ELB Connection Draining - Remove Instances From Service With Care](https://aws.amazon.com/blogs/aws/elb-connection-draining-remove-instances-from-service-with-care/)
+
+* [Configure instance tenancy with a launch configuration](https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-dedicated-instances.html)

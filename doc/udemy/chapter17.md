@@ -2,6 +2,8 @@
 
 - [Amazon SQS](#amazon-sqs)
 - [FIFO Queues with Multiple Groups](#fifo-queues-with-multiple-groups)
+- [Amazon Kinesis](#amazon-kinesis)
+- [AWS Kinesis Best Practices](#aws-kinesis-best-practices)
 - [References](#references)
 
 <!-- /TOC -->
@@ -15,6 +17,18 @@ SQS is a fully managed queuing service that helps decouple applications and micr
 
 * FIFO queues are designed to guarantee that messages are processed exactly once in the exact order that they are received and have a default rate of 300 transactions per second.
 
+---
+## Moving From a Standard Queue to a FIFO Queue
+
+* You cannot convert an existing standard queue to a FIFO queue. You must delete your existing standard queue and recreate it as a FIFO queue.
+
+* FIFO queues don't support per-message delay, only per-queue delay. If your application sets the value of `DelaySeconds` parameter on each message, you must modify your application to set `DelaySeconds` on the entire queue instead.
+
+* Message group is a unique FIFO feature that enables customers to process messages in parallel while maintaining their respective ordering.
+
+* Modify your application to provide a unique message deduplication ID for each sent message, if your application can send identical message bodies.
+
+* Otherwise, enable content-based deduplication, if your application sends messages with unique message bodies.
 
 ---
 ## FIFO Queues with Multiple Groups
@@ -69,3 +83,5 @@ To help ingest real-time data, you can use Amazon Kinesis Data Streams, which ca
 * [Solving Complex Ordering Challenges with Amazon SQS FIFO Queues](https://aws.amazon.com/blogs/compute/solving-complex-ordering-challenges-with-amazon-sqs-fifo-queues/)
 
 * [Best practices for consuming Amazon Kinesis Data Streams using AWS Lambda](https://aws.amazon.com/blogs/big-data/best-practices-for-consuming-amazon-kinesis-data-streams-using-aws-lambda/)
+
+* [Moving from a standard queue to a FIFO queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues-moving.html)

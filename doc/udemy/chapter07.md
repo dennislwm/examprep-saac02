@@ -9,6 +9,13 @@
 <!-- /TOC -->
 
 ---
+## EC2 Instance Store
+
+EC2 Instance Store has a higher performance than EBS volumes with better I/O performance. However, Instance Store is an ephemeral storage as they lose data if the instance is stopped.
+
+It is primarily used to buffer cache temporary data for high-performance computation.
+
+---
 ## Amazon EFS
 
 Amazon EFS offers a range of storage classes for Linux-based AMIs (not Windows):

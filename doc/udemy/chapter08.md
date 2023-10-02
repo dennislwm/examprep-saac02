@@ -1,6 +1,12 @@
 <!-- TOC -->
 
-- [ELB](#elb)
+- [Elastic Load Balancer ELB](#elastic-load-balancer-elb)
+    - [AZs and LB Nodes](#azs-and-lb-nodes)
+    - [Cross-Zone Load Balancing](#cross-zone-load-balancing)
+    - [Zonal Shift](#zonal-shift)
+    - [Request Routing](#request-routing)
+    - [Routing Algorithm](#routing-algorithm)
+    - [Load Balancer Scheme](#load-balancer-scheme)
     - [Connection Draining](#connection-draining)
 - [ALB Authentication](#alb-authentication)
     - [Authentication Flow](#authentication-flow)
@@ -13,10 +19,7 @@
 - [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
 - [References](#references)
 
-<!-- /TOC -->Policy](#default-termination-policy)
-- [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
-- [References](#references)
-
+<!-- /TOC -->
 <!-- /TOC -->
     - [ASG Termination Policy](#asg-termination-policy)
         - [Default Termination Policy](#default-termination-policy)
@@ -26,9 +29,77 @@
 <!-- /TOC -->
 
 ---
-## ELB
+## Elastic Load Balancer (ELB)
 
 ELB distributes incoming traffic across multiple EC2 instances. When combined with ASG, the two features allow you to create a system that automatically adds and removes EC2 instances in response to changing load.
+
+An ELB accepts incoming traffic and routes requests to its registered targets, such as EC2 instances, in one or more AZs. The ELB also monitors the health of its registered targets and ensures that it routes traffic only to healthy targets.
+
+You configure your ELB to accept incoming traffic by specifying one or more listeners. A listener is configured with a protocol, such as HTTP, and port number.
+
+ELB supports the following types of load balancers:
+
+* Application LBs
+* Network LBs
+* Gateway LBs
+* Classic LBs
+
+With Classic LBs, you register instances with the load balancer, while the other types of LBs register instances in target groups.
+
+### AZs and LB Nodes
+
+When you enable an AZ for your ELB, it creates a load balancer node in the AZ. If you register targets in an AZ, but do not enable the AZ, these registered targets do not receive traffic.
+
+With an ALB, it is a requirement that you enable at least two or more AZs. If one AZ becomes unavailable or has no healthy targets, the load balancer can route traffic to the healthy targets in another AZ.
+
+### Cross-Zone Load Balancing
+
+When cross-zone load balancing is enabled, each load balancer node distributes traffic across the registered targets in all enabled AZs. For example, if AZ 1 has two registered targets, and AZ 2 has 8 registered targets, then each of the 10 targets receives 10% of the traffic.
+
+When cross-zone load balancing is disabled, each load balancer node distributes traffic only across registered targets in its own AZ. Using the same example above, both load balancer nodes receives 50% traffic each, where each of the targets in AZ 1 receives 25% of the traffic, while each of the targets in AZ 2 receives 6.25% of the traffic.
+
+With an ALB, cross-zone load balancing is always enabled at the load balancer level. At the target group level, cross-zone load balancing can be disabled.
+
+### Zonal Shift
+
+Zonal shift is a capability of Route 53 Application Recovery Controller (Route 53 ARC). With zonal shift, you can shift a load balancer resource away from an impaired AZ with a single action.
+
+Zonal shifts are only supported on ALBs and NLBs with cross-zone load balancing turned off. You can't start a zonal shift for multiple AZs.
+
+### Request Routing
+
+Before a client sends a request to your load balancer, it resolves the load balancer's domain name using a DNS server. The DNS entry is controlled by Amazon, because your load balancers are in the `amazonaws.com` domain. The Amazon DNS servers return one or more IPs of the load balancer nodes to the client.
+
+With NLB, a network interface is created for each AZ that you enable, to get a static IP address.
+
+### Routing Algorithm
+
+With ALBs, the load balancer node processes requests as follows:
+
+1. Evaluates the listener rules in priority order to determine which rule to apply.
+
+2. Selects a target from the target group for the rule action, using the configured routing algorithm for the target group. The default routing algorithm is round robin.
+
+With NLBs, the load balancer node processes requests as follows:
+
+1. Selects a target from the target group for the default rule using a flow hash algorithm. It bases the algorithm on:
+  - protocol type
+  - source IP and source port
+  - destination IP and destination port
+  - TCP sequence number
+
+2. Routes each individual TCP connection to a single target for the life of the connection. The TCP connections from a client have different ports and sequence numbers, and can be routed to different targets.
+
+### Load Balancer Scheme
+
+When you create an ELB, you must choose either:
+
+* Internal LB - load balancer nodes only have private IPs.
+
+* Internet-facing LB - DNS name is resolvable to the public IPs of the load balancer nodes.\
+
+Both types of LBs route requests to your targets' private IPs, so your targets do not need public IPs to receive requests from an internal or internet-facing LB.
+
 
 ### Connection Draining
 

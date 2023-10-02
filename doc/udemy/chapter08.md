@@ -13,6 +13,10 @@
 - [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
 - [References](#references)
 
+<!-- /TOC -->Policy](#default-termination-policy)
+- [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
+- [References](#references)
+
 <!-- /TOC -->
     - [ASG Termination Policy](#asg-termination-policy)
         - [Default Termination Policy](#default-termination-policy)
@@ -177,3 +181,5 @@ Sometimes, you cannot determine why ASG didn't terminate an unhealthy instance. 
 * [ELB Connection Draining - Remove Instances From Service With Care](https://aws.amazon.com/blogs/aws/elb-connection-draining-remove-instances-from-service-with-care/)
 
 * [Configure instance tenancy with a launch configuration](https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-dedicated-instances.html)
+
+* [How Elastic Load Balancing works](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html)

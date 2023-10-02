@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 - [Amazon SQS](#amazon-sqs)
+- [Moving From a Standard Queue to a FIFO Queue](#moving-from-a-standard-queue-to-a-fifo-queue)
 - [FIFO Queues with Multiple Groups](#fifo-queues-with-multiple-groups)
 - [Amazon Kinesis](#amazon-kinesis)
 - [AWS Kinesis Best Practices](#aws-kinesis-best-practices)
@@ -15,7 +16,14 @@ SQS is a fully managed queuing service that helps decouple applications and micr
 
 * Standard SQS queues are able to scale to enormous throughput with at-least-once delivery.
 
-* FIFO queues are designed to guarantee that messages are processed exactly once in the exact order that they are received and have a default rate of 300 transactions per second.
+* FIFO queues are designed to guarantee that messages are processed exactly once in the exact order that they are received and have a default rate of 300 transactions per second (and up to 3,000 tps with batching).
+
+---
+## Delay Queue vs Visibility Timeout
+
+Delay queues let you postpone delivery of new messages by hiding them up to a maximum of 15 minutes. Delay queues are similar to visibility timeouts because both features make messages unavailable to consumers for a specific period of time.
+
+The difference between the two is that, for delay queues, a message is hidden when it is first added to queue, whereas for visibility timeouts a message is hidden only after it is consumed from the queue.
 
 ---
 ## Moving From a Standard Queue to a FIFO Queue

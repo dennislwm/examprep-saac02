@@ -9,6 +9,8 @@
     - [Direct Connect Virtual Interface](#direct-connect-virtual-interface)
 - [References](#references)
 
+<!-- /TOC -->](#references)
+
 <!-- /TOC -->
 
 <!-- /TOC -->
@@ -91,4 +93,7 @@ Direct Connect provides three types of virtual interfaces (VIFs):
 ## References
 
 * [AWS Single Region Multi-VPC Connectivity](https://d0.awsstatic.com/aws-answers/AWS_Single_Region_Multi_VPC_Connectivity.pdf)
+
 * [Which type of Direct Connect virtual interface should I use to connect different AWS resources?](https://repost.aws/knowledge-center/public-private-interface-dx)
+
+* [Connect to the internet using an internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html)

@@ -1,5 +1,14 @@
 # Chapter 24. AWS Monitoring & Audit: CloudWatch, CloudTrail & Config
 
+<!-- TOC -->
+
+- [Chapter 24. AWS Monitoring & Audit: CloudWatch, CloudTrail & Config](#chapter-24-aws-monitoring--audit-cloudwatch-cloudtrail--config)
+    - [AWS Config](#aws-config)
+        - [Config Rules](#config-rules)
+        - [Config Use Cases](#config-use-cases)
+
+<!-- /TOC -->
+
 ---
 ## AWS Config
 

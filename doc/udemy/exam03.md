@@ -1,27 +1,9 @@
-# Practice Exam 3
-
 <!-- TOC -->
 
-- [Practice Exam 3](#practice-exam-3)
-    - [Domain 1: Design Secure Architectures](#domain-1-design-secure-architectures)
-    - [Domain 2: Design Resilient Architectures](#domain-2-design-resilient-architectures)
+- [Domain 2: Design Resilient Architectures](#domain-2-design-resilient-architectures)
+- [Domain 4: Design High-Performing Architectures](#domain-4-design-high-performing-architectures)
 
 <!-- /TOC -->
-
----
-## Domain 1: Design Secure Architectures
-
-**Question 1**
-
-* Concerns about accessing AWS resources over the public internet.
-
-Does not require internet:
-1. VPC endpoint
-
-Requires internet:
-1. Internet Gateway
-2. VPN
-3. NAT Instance
 
 **Question 10**
 
@@ -154,3 +136,54 @@ Not retain in recovered instances:
 * in-memory data
 * terminated or stopped instances
 * instance store volumes
+
+---
+## Domain 4: Design High-Performing Architectures
+
+**Question 24**
+
+* Most frequently accessed logs are available as cached data locally.
+* Backing up all logs on S3 bucket.
+
+Frequently accessed logs cached locally:
+1. AWS Volume Gateway - Cached Volume
+
+Non-frequently access logs cached locally:
+1. AWS Volume Gateway - Stored Volume
+
+Non-cached:
+1. Snowball Edge Storage Optimized
+2. Direct Connect
+
+**Question 35**
+
+* Move on-premises data into S3, EFS, and FSx for Windows File Server.
+* Automate and accelerate online data transfers.
+
+Online data transfer to S3, EFS, FSx for Windows, CloudWatch, CloudTrail:
+1. DataSync
+
+Online data transfer to S3 and EFS only:
+1. Transfer Family
+
+Online data transfer to S3 only:
+1. File Gateway
+
+Offline data transfer:
+1. Snowball Edge Storage Optimized
+
+**Question 40**
+
+* Uses Microsoft Active Directory (AD) to provide users with access to resources on the on-premises infrastructure.
+* Run directory-aware workloads on AWS in the form of a hybrid cloud.
+* Configure a trust relationship to enable SSO for its users.
+
+Run directory-aware workloads and configure trust relationship:
+1. AWS Managed Microsoft AD
+
+Cannot run directory-aware workloads:
+1. AD Connector
+2. Cloud Directory
+
+Run directory-aware workloads but cannot configure trust relationship:
+1. Simple AD

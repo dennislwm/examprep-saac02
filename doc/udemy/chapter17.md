@@ -1,6 +1,6 @@
 <!-- TOC -->
 
-- [Amazon SQS](#amazon-sqs)
+- [Long Polling vs Short Polling](#long-polling-vs-short-polling)
 - [Moving From a Standard Queue to a FIFO Queue](#moving-from-a-standard-queue-to-a-fifo-queue)
 - [FIFO Queues with Multiple Groups](#fifo-queues-with-multiple-groups)
 - [Amazon Kinesis](#amazon-kinesis)
@@ -9,21 +9,16 @@
 
 <!-- /TOC -->
 
----
-## Amazon SQS
-
-SQS is a fully managed queuing service that helps decouple applications and microservices to increase fault tolerance. SQS queues come in two distinct types:
-
-* Standard SQS queues are able to scale to enormous throughput with at-least-once delivery.
-
-* FIFO queues are designed to guarantee that messages are processed exactly once in the exact order that they are received and have a default rate of 300 transactions per second (and up to 3,000 tps with batching).
-
----
-## Delay Queue vs Visibility Timeout
-
 Delay queues let you postpone delivery of new messages by hiding them up to a maximum of 15 minutes. Delay queues are similar to visibility timeouts because both features make messages unavailable to consumers for a specific period of time.
 
 The difference between the two is that, for delay queues, a message is hidden when it is first added to queue, whereas for visibility timeouts a message is hidden only after it is consumed from the queue.
+
+---
+## Long Polling vs Short Polling
+
+While the regular short polling returns immediately even if the message queue being polled is empty, long polling doesn't return a response until a message arrives in the message queue, or the long poll times out.
+
+Long polling are billed exactly the same as short polling. However, using long polling might reduce the cost of using SQS, because you can reduce the number of empty receives.
 
 ---
 ## Moving From a Standard Queue to a FIFO Queue

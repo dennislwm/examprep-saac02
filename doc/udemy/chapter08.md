@@ -1,32 +1,29 @@
+# Chapter 8. High Availability and Scalability: ELB & ASG
+
 <!-- TOC -->
 
-- [Elastic Load Balancer ELB](#elastic-load-balancer-elb)
-    - [AZs and LB Nodes](#azs-and-lb-nodes)
-    - [Cross-Zone Load Balancing](#cross-zone-load-balancing)
-    - [Zonal Shift](#zonal-shift)
-    - [Request Routing](#request-routing)
-    - [Routing Algorithm](#routing-algorithm)
-    - [Load Balancer Scheme](#load-balancer-scheme)
-    - [Connection Draining](#connection-draining)
-- [ALB Authentication](#alb-authentication)
-    - [Authentication Flow](#authentication-flow)
-- [Auto Scaling Group](#auto-scaling-group)
-    - [Configure Instance Tenancy in a Launch Configuration or Launch Template](#configure-instance-tenancy-in-a-launch-configuration-or-launch-template)
-- [ASG Scaling Policy](#asg-scaling-policy)
-    - [ASG Scaling Cooldown](#asg-scaling-cooldown)
-- [ASG Termination Policy](#asg-termination-policy)
-    - [Default Termination Policy](#default-termination-policy)
-- [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
-- [References](#references)
-
-<!-- /TOC -->
-<!-- /TOC -->
+- [Chapter 8. High Availability and Scalability: ELB & ASG](#chapter-8-high-availability-and-scalability-elb--asg)
+    - [Elastic Load Balancer ELB](#elastic-load-balancer-elb)
+        - [AZs and LB Nodes](#azs-and-lb-nodes)
+        - [Cross-Zone Load Balancing](#cross-zone-load-balancing)
+        - [Zonal Shift](#zonal-shift)
+        - [Request Routing](#request-routing)
+        - [Routing Algorithm](#routing-algorithm)
+        - [Load Balancer Scheme](#load-balancer-scheme)
+        - [Connection Draining](#connection-draining)
+    - [ALB Authentication](#alb-authentication)
+        - [Authentication Flow](#authentication-flow)
+    - [Auto Scaling Group](#auto-scaling-group)
+        - [Configure Instance Tenancy in a Launch Configuration or Launch Template](#configure-instance-tenancy-in-a-launch-configuration-or-launch-template)
+    - [ASG Scaling Policy](#asg-scaling-policy)
+        - [ASG Scaling Cooldown](#asg-scaling-cooldown)
     - [ASG Termination Policy](#asg-termination-policy)
         - [Default Termination Policy](#default-termination-policy)
     - [ASG Termination of Unhealthy Instances](#asg-termination-of-unhealthy-instances)
     - [References](#references)
 
 <!-- /TOC -->
+
 
 ---
 ## Elastic Load Balancer (ELB)
@@ -166,6 +163,8 @@ The following table summarizes the instance placement tenancy of the ASG instanc
 |        not specified         | shared-tenancy instances | single-tenancy instances  |
 |          `default`           | shared-tenancy instances | single-tenancy instances  |
 |         `dedicated`          | single-tenancy instances | single-tenancy instances  |
+
+Note: You can change the tenancy of a launched instance from `dedicated` to `host`, or from `host` to `dedicated`, but not from or to `default`.
 
 ---
 ## ASG Scaling Policy

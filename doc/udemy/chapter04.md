@@ -1,24 +1,21 @@
+# Chapter 4. IAM & AWS CLI
+
 <!-- TOC -->
 
-- [Permissions Boundaries for IAM Entities](#permissions-boundaries-for-iam-entities)
-    - [Identity-based Policies with Boundaries](#identity-based-policies-with-boundaries)
-    - [Resource-based Policies for IAM Users](#resource-based-policies-for-iam-users)
-    - [Resource-based Policies for IAM Roles](#resource-based-policies-for-iam-roles)
-    - [Resource-based Policies for IAM Role Sessions](#resource-based-policies-for-iam-role-sessions)
-    - [Resource-based Policies for IAM Federated User Sessions](#resource-based-policies-for-iam-federated-user-sessions)
-    - [Organisations SCPs](#organisations-scps)
-    - [Session Policies](#session-policies)
-    - [Policy Evaluation Logic](#policy-evaluation-logic)
-- [Using an IAM Role to Gran Permissions to Applications Running on EC2](#using-an-iam-role-to-gran-permissions-to-applications-running-on-ec2)
-    - [How Do Roles for EC2 Instances Work?](#how-do-roles-for-ec2-instances-work)
-- [References](#references)
+- [Chapter 4. IAM & AWS CLI](#chapter-4-iam--aws-cli)
+        - [Identity-based Policies with Boundaries](#identity-based-policies-with-boundaries)
+        - [Resource-based Policies for IAM Users](#resource-based-policies-for-iam-users)
+        - [Resource-based Policies for IAM Roles](#resource-based-policies-for-iam-roles)
+        - [Resource-based Policies for IAM Role Sessions](#resource-based-policies-for-iam-role-sessions)
+        - [Resource-based Policies for IAM Federated User Sessions](#resource-based-policies-for-iam-federated-user-sessions)
+        - [Organisations SCPs](#organisations-scps)
+        - [Session Policies](#session-policies)
+        - [Policy Evaluation Logic](#policy-evaluation-logic)
+    - [Using an IAM Role to Gran Permissions to Applications Running on EC2](#using-an-iam-role-to-gran-permissions-to-applications-running-on-ec2)
+        - [How Do Roles for EC2 Instances Work?](#how-do-roles-for-ec2-instances-work)
+    - [References](#references)
 
 <!-- /TOC -->
-
----
-## Permissions Boundaries for IAM Entities
-
-A permissions boundary is used to set the maximum permissions that and identity-based policy can grant to an IAM entity. This can change the effective permissions for that user or role.
 
 Within an account, the permissions for an entity can be affected by identity-based policies, resource-based policies, permissions boundaries, Organizations SCPs, or session policies. If any one of these policy types explicitly denies access for an operation, then the request is denied.
 

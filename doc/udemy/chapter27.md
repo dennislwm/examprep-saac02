@@ -127,6 +127,29 @@ Direct Connect provides three types of virtual interfaces (VIFs):
 * Transit Virtual Interface - connect to AWS resources using their private IP addresses through a transit gateway.
 
 ---
+## Transit Gateway
+
+* Transitive peering between thousands of VPCs and on-premises.
+
+* Hub-and-spoke (star) connections across multiple regions.
+
+* Route tables limit which VPC can talk with another VPC.
+
+* Works with Direct Connect, VPN connections.
+
+* Supports IP Multicast (not supported by any other AWS service).
+
+* Increase Site-to-Site VPN bandwidth.
+
+* Share one Direct Connect betweeen multiple AWS accounts.
+
+### Equal-Cost Multi-Path (ECMP) Routing
+
+ECMP is a routing strategy to increase bandwitch of Site-to-Site VPN connections to your AWS cloud. It allows the routing strategy to forward a packet over multiple best path.
+
+If you connect on-premises VPN to an AWS virtual private gateway, you get a bandwidth of 1.25 Gbps. However, if you connect the same VPN to an AWS transit gateway, you get a bandwidth of 2.5 Gbps due to ECMP, and in addition you can have scale the bandwidths using ECMP.
+
+---
 ## References
 
 * [AWS Single Region Multi-VPC Connectivity](https://d0.awsstatic.com/aws-answers/AWS_Single_Region_Multi_VPC_Connectivity.pdf)

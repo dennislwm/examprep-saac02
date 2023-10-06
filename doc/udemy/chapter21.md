@@ -1,5 +1,14 @@
 # Chapter 21. Databases in AWS
 
+<!-- TOC -->
+
+- [Chapter 21. Databases in AWS](#chapter-21-databases-in-aws)
+    - [DynamoDB](#dynamodb)
+        - [Point-In-Time Recovery](#point-in-time-recovery)
+    - [References](#references)
+
+<!-- /TOC -->
+
 ---
 ## DynamoDB
 

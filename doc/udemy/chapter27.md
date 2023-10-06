@@ -1,17 +1,56 @@
+# Chapter 27. Networking - VPC
+
 <!-- TOC -->
 
-- [Single Region Multi-VPC Connectivity](#single-region-multi-vpc-connectivity)
-    - [General Best Practices](#general-best-practices)
-    - [Partially or Fully Meshed Network VPC Peering](#partially-or-fully-meshed-network-vpc-peering)
-    - [VPCs connected with AWS Direct Connect](#vpcs-connected-with-aws-direct-connect)
-    - [Transit VPC](#transit-vpc)
-- [Direct Connect & Direct Connect Gateway](#direct-connect--direct-connect-gateway)
-    - [Direct Connect Virtual Interface](#direct-connect-virtual-interface)
-- [References](#references)
+- [Chapter 27. Networking - VPC](#chapter-27-networking---vpc)
+    - [Internet Gateways and Route Tables](#internet-gateways-and-route-tables)
+        - [Internet Gateway IG](#internet-gateway-ig)
+        - [NAT Devices](#nat-devices)
+    - [Egress-Only Internet Gateway IG](#egress-only-internet-gateway-ig)
+    - [Single Region Multi-VPC Connectivity](#single-region-multi-vpc-connectivity)
+        - [General Best Practices](#general-best-practices)
+        - [Partially or Fully Meshed Network VPC Peering](#partially-or-fully-meshed-network-vpc-peering)
+        - [VPCs connected with AWS Direct Connect](#vpcs-connected-with-aws-direct-connect)
+        - [Transit VPC](#transit-vpc)
+    - [Direct Connect & Direct Connect Gateway](#direct-connect--direct-connect-gateway)
+        - [Direct Connect Virtual Interface](#direct-connect-virtual-interface)
+    - [References](#references)
 
 <!-- /TOC -->
 
-<!-- /TOC -->
+---
+## Internet Gateways and Route Tables
+
+### Internet Gateway (IG)
+
+An IG is a scalable, redundant, and HA VPC component that allows communication between your VPC subnets and the internet. An IG provides a target in your VPC route tables for internet-routable traffic, and it also performs network address translation (NAT).
+
+If a subnet is associated with a route table that has a route to an IG, it's known as a public subnet, otherwise, it is known as a private subnet.
+
+In your public subnet's route table, you can specify an outbound route for the IG to all destinations not explicitly known to the route table, i.e. `0.0.0.0/0`. Alternatively, you can specify the route to a narrower range, such as your company's public IPs outside of AWS.
+
+To enable communication over the internet, your instance must have a public IP. The IG logically provides the one-to-one NAT on behalf of your instance, so that when outbound traffic goes to the internet, the reply address field is set to the public IP of your instance, and not its private IP. Conversely, inbound traffic that is destined for your instance's public IP has its destination address translated into the instance's private IP before the traffic is delivered to the VPC subnet.
+
+### NAT Devices
+
+You can use a NAT device to allow resources in a private subnet to connect to the internet, other VPCs, or on-premises network. These instances can communicate with services outside the VPC, but they cannot receive unsolicited connection requests.
+
+You can use AWS managed NAT device, called a NAT Gateway, or you can create your own NAT device on an EC2 instance, called a NAT instance.
+
+NAT devices are not supported for IPv6 traffic, use an egress-only Internet Gateway instead.
+
+---
+## Egress-Only Internet Gateway (IG)
+
+An egress-only IG is a scalable, redundant HA VPC component that allows outbound communication over IPv6 from instances in your VPC subnets to the internet, and prevents the internet from initiating an IPv6 connection with your instances.
+
+Note: To enable outbound-only internet communication over IPv4, use a NAT gateway instead.
+
+An egress-only IG is stateful as it forwards traffic from the instances in the VPC subnet to the internet, and then sends the response back to the instances.
+
+* You cannot associate a security group with an egress-only IG (attach them to your instances instead).
+
+* You cannot use NACL to control traffic to and from your subnet for which the egress-only IG routes traffic.
 
 ---
 ## Single Region Multi-VPC Connectivity
@@ -91,4 +130,9 @@ Direct Connect provides three types of virtual interfaces (VIFs):
 ## References
 
 * [AWS Single Region Multi-VPC Connectivity](https://d0.awsstatic.com/aws-answers/AWS_Single_Region_Multi_VPC_Connectivity.pdf)
+
 * [Which type of Direct Connect virtual interface should I use to connect different AWS resources?](https://repost.aws/knowledge-center/public-private-interface-dx)
+
+* [Connect to the internet using an internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html)
+
+* [Enable outbound IPv6 traffic using an egress-only internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/egress-only-internet-gateway.html)

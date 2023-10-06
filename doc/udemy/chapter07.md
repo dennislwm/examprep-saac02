@@ -1,10 +1,13 @@
+# Chapter 7. EC2 Instance Storage
+
 <!-- TOC -->
 
-- [Amazon EFS](#amazon-efs)
-    - [EFS Storage Class](#efs-storage-class)
-    - [EFS Performance](#efs-performance)
-- [* Throughput Mode:](#-throughput-mode)
-- [References](#references)
+- [Chapter 7. EC2 Instance Storage](#chapter-7-ec2-instance-storage)
+    - [EC2 Instance Store](#ec2-instance-store)
+    - [Amazon EFS](#amazon-efs)
+        - [EFS Storage Class](#efs-storage-class)
+        - [EFS Performance](#efs-performance)
+    - [References](#references)
 
 <!-- /TOC -->
 

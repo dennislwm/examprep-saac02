@@ -1,5 +1,15 @@
 # Chapter 13. Advanced Amazon S3
 
+<!-- TOC -->
+
+- [Chapter 13. Advanced Amazon S3](#chapter-13-advanced-amazon-s3)
+    - [S3 Lifecycle Rules with S3 Analytics](#s3-lifecycle-rules-with-s3-analytics)
+    - [S3 Requester Pays](#s3-requester-pays)
+    - [S3 Performance](#s3-performance)
+    - [References](#references)
+
+<!-- /TOC -->
+
 ---
 ## S3 Lifecycle Rules with S3 Analytics
 

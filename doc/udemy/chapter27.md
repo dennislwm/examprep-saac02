@@ -114,6 +114,37 @@ The design requires the customer to deploy, configure, and manage EC2-based VPN 
 Note that this design will generate additional data transfer charges for traffic traversing the transit VPC.
 
 ---
+## VPC Endpoints
+
+Every AWS service can be publicly exposed via a public URL. A VPC Endpoint allows you to connect to AWS services using AWS PrivateLink network instead of using the internet.
+
+* Remove the need for IG / NAT etc to access AWS services.
+
+* Scale horizontally and are redundant.
+
+### VPC Gateway Endpoint vs VPC Interface Endpoint
+
+A Gateway Endpoint is a gateway that you specify in your route table to access AWS S3 or DynamoDB from your VPC over the AWS PrivateLink network.
+
+An Interface Endpoint extends the functionality of Gateway Endpoints by using private IPs to route requests to Amazon S3 or DynamoDB from within your VPC, On-Premises, or from a VPC in another AWS Region by using VPC Peering or Transit Gateway.
+
+|             Gateway Endpoint              |                   Interface Endpoint                   |
+|:-----------------------------------------:|:------------------------------------------------------:|
+|         Traffic over PrivateLink          |                Traffic over PrivateLink                |
+| Must be used as a target in a route table |    Provisions an ENI (private IP) as an entry point    |
+|        Does not use security group        |              Must attach a security group              |
+|      Use Public IP of S3 or DynamoDB      | Use private IPs from your VPC to access S3 or DynamoDB |
+|       Use the same DNS names of S3        |       Require endpoint-specific DNS names of S3        |
+|         Do not allow On-Premises          |             Allow access from On-Premises              |
+|                Same Region                |  Cross Region by using VPC Peering or Transit Gateway  |
+|                Not billed                 |       Billed per hour + per GB of data processed       |
+|       Supports S3 and DynamoDB only       |               Supports most AWS services               |
+
+* Use Gateway Endpoint for S3 or DynamoDB as it is free and easy to setup.
+
+* Use Interface Endpoint for On-Premises (Site-to-Site VPN or Direct Connect), Cross Region, Different VPC, or Private IPs.
+
+---
 ## Direct Connect & Direct Connect Gateway
 
 ### Direct Connect Virtual Interface

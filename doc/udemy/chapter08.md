@@ -144,6 +144,21 @@ The following workflow represents how an ALB uses OIDC to authenticate users:
 11. The ALB sends the final response to the user.
 
 ---
+## ALB Support for Multiple TLS Certificates Using SNI
+
+You can host multiple TLS secured applications, each with its own TLS certificate behind a single ALB. In order to use Server Name Indication (SNI), all you need to do is bind multiple certificates to the same secure listener on your ALB.
+
+ALB will autoomatically choose the optimal TLS certificate for each client at no extra charge. The most common reason you might want to use multiple certificates is to handle different domains with the same ALB.
+
+Wildcard certificates have some limitations in that it works for subdomains that match a simple pattern, while subject-alternate-name (SAN) certicates can support many different domains, but the same CA has to authenticate each one, which means that you have to reauthenticate and reprovision your certificate everytime you add a new domain.
+
+### TLS vs SSL
+
+SSL technically refers to a predecessor of the TLS protocol. TLS is a protocol for securely transmitting data, such as passwords etc, as it enables privacy, authentication, and integrity of the data being transmitted.
+
+SSL / TLS provides encryption of data in transit. When a browser connects to your TLS-enabled ALB, ALB presents a certificate that contains your site's public key, which has been cryptographically signed by a CA, to ensure that the browser knows it's safe to use your site's public key to establish a secure connection.
+
+---
 ## Auto Scaling Group
 
 ### Configure Instance Tenancy in a Launch Configuration or Launch Template
@@ -253,3 +268,5 @@ Sometimes, you cannot determine why ASG didn't terminate an unhealthy instance. 
 * [Configure instance tenancy with a launch configuration](https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-dedicated-instances.html)
 
 * [How Elastic Load Balancing works](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html)
+
+* [Application Load Balancers Now Support Multiple TLS Certificates With Smart Selection Using SNI](https://aws.amazon.com/blogs/aws/new-application-load-balancer-sni/)

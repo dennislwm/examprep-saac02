@@ -3,6 +3,13 @@
 <!-- TOC -->
 
 - [Chapter 15. CloudFront & AWS Global Accelerator](#chapter-15-cloudfront--aws-global-accelerator)
+    - [CloudFront](#cloudfront)
+        - [CloudFront - ALB or EC2 as an Backend Origin](#cloudfront---alb-or-ec2-as-an-backend-origin)
+        - [Geo Restriction](#geo-restriction)
+        - [Price Classes](#price-classes)
+        - [Cache Invalidation](#cache-invalidation)
+        - [High Availability with Backend Origin Failover](#high-availability-with-backend-origin-failover)
+        - [Secure Backend Origin with Field-Level Encryption](#secure-backend-origin-with-field-level-encryption)
     - [AWS Global Accelerator](#aws-global-accelerator)
         - [Unicast IP vs Anycast IP](#unicast-ip-vs-anycast-ip)
         - [Global Accelerator vs CloudFront](#global-accelerator-vs-cloudfront)
@@ -10,6 +17,59 @@
     - [References](#references)
 
 <!-- /TOC -->
+
+---
+## CloudFront
+
+### CloudFront - ALB or EC2 as an Backend Origin
+
+Users can access an ALB or EC2 instance from the internet through a CloudFront Edge Location:
+
+* EC2 instance must be public.
+  - Security group of EC2 must allow list of Public IPs of Edge Locations.
+
+* ALB must be public, while EC2 instances behind ALB can be private.
+  - Security group of EC2 must allow security group of ALB.
+
+### Geo Restriction
+
+* You can restrict who can access your distribution:
+  - Allow list: allow a list of approved countries.
+  - Block list: block a list of banned countries.
+
+* The "country" of a incoming traffic is determined using a third-party Geo-IP database.
+  - Users can still use a VPN to spoof their IP address.
+
+* Use case: Control access to content based on copyright laws.
+
+### Price Classes
+
+* The cost of outgoing traffic (egress) per Edge Location varies.
+
+* The cost of egress data decreases per unit as the volume increases.
+
+* You can reduce the number of Edge Locations for cost reduction:
+
+* There are three Price Classes:
+  - Class All - all regions, including class 200 and rest of South America, Australia, NZ.
+  - Class 200 - most regions, except the most expensive regions, includes class 100 and Asia, Africa/Middle East, Sydney, Brazil.
+  - Class 100 - least expensive regions, i.e. North America and Europe.
+
+### Cache Invalidation
+
+When you update the backend origin, CloudFront does not know about it until the TTL has expired and it gets the refreshed content. However, you can force a partial (`/images/*`) or full (`*`) cache refresh (thus bypassing the TTL) by performing a CloudFront Cache Invalidation to delete the cache in the Edge Location and it will get the new content the next time a user request your data.
+
+### High Availability with Backend Origin Failover
+
+You can set up HA by creating an origin group with both a primary and a secondary backend origins. Then you create or update a cache behaviour to use the origin group.
+
+CloudFront will only send request to the secondary origin after a request to the primary origin fails.
+
+### Secure Backend Origin with Field-Level Encryption
+
+You can enforce end-to-end connections to backend origins by using field encryption together with HTTPS. Field-level encryption provides encryption of sensitive data at the edge, close to the user, and remains encrypted throughout your entire application stack.
+
+You can encrypt up to 10 individual data fields in a POST request, but you cannot encrypt all the data. Field encryption uses asymmetric encryption (public and private key pairs), and you must provide the public key to CloudFront.
 
 ---
 ## AWS Global Accelerator

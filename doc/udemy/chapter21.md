@@ -4,7 +4,9 @@
 
 - [Chapter 21. Databases in AWS](#chapter-21-databases-in-aws)
     - [DynamoDB](#dynamodb)
+        - [Auto scaling: Provisioned, On-Demand, and Reserved Capacities](#auto-scaling-provisioned-on-demand-and-reserved-capacities)
         - [Point-In-Time Recovery](#point-in-time-recovery)
+        - [DynamoDB with KMS](#dynamodb-with-kms)
     - [References](#references)
 
 <!-- /TOC -->
@@ -43,6 +45,20 @@ You can create either on-demand backups or enable continuous backups using point
 For example, suppose that a test script writes accidentally to a production DynamoDB table. With point-in-time recovery, you can restore that table to any point in time during the last 35 days.
 
 In addition, point-in-time operations don't affect performance or API latencies of your DynamoDB.
+
+### DynamoDB with KMS
+
+DynamoDB supports server-side encryption at rest with AWS owned KMS (free) by default. However, you can select to use an AWS managed key or a customer owned key instead.
+* all customer data
+* all tables
+* primary key
+* local secondary indexes
+* global secondary indexes
+* streams
+* global tables
+* backups
+
+However, the table metadata (including some of the sort keys that mark range boundaries) are stored in plain text.
 
 ---
 ## References

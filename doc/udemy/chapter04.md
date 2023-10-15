@@ -17,6 +17,24 @@
 
 <!-- /TOC -->
 
+---
+## IAM Root User
+
+The following AWS tasks can only be performed by the root user:
+
+* Change your AWS account settings.
+* Restore IAM user permissions.
+* Activate IAM access to the Billing and Cost Management console.
+* Close your AWS account.
+* Register as a seller in the Reserved Instance Marketplace.
+* Configure an S3 bucket to enable MFA.
+* Edit or delete an SQS resource policy that denies all principals.
+* Edit or deleete an S3 bucket policy that denies all principals.
+* Sign up for AWS GovCloud (US).
+
+---
+## Permission Boundaries
+
 Within an account, the permissions for an entity can be affected by identity-based policies, resource-based policies, permissions boundaries, Organizations SCPs, or session policies. If any one of these policy types explicitly denies access for an operation, then the request is denied.
 
 ### Identity-based Policies with Boundaries
@@ -60,7 +78,7 @@ The effective permissions are the intersection of session policies, identity-bas
 ![Policy evaluation logic](../../img/udemy/Chp04.1.png)
 
 ---
-## Using an IAM Role to Gran Permissions to Applications Running on EC2
+## Using an IAM Role to Grant Permissions to Applications Running on EC2
 
 You can use an IAM role to manage temporary credentials for applications that run on an EC2 instance. When you use a role, you don't have to distribute long-term credentials, such as sign-in credentials or access keys, to an EC2 instance.
 
@@ -87,3 +105,4 @@ Only one role can be assigned to an EC2 instance at a time, and all applications
 * [Permission boundaries for IAM entities](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html)
 * [Policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)
 * [Using an IAM role to grant permissions to applications running on Amazon EC2 instances](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2.html)
+* [Tasks that require root user credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-tasks.html)

@@ -57,6 +57,45 @@ To enable OpenSearch on CloudWatch Log.
 - Alternatively, use Kinesis Data Firehose instead of Lambda to ingests data and convert to OpenSearch.
 
 ---
+## AWS EMR
+
+* Elastic MapReduce (EMR) supports Hadoop clusters to analyze and process big data.
+* EMR comes bundled with Apache Spark, HBase, Presto, Flink etc.
+* Use cases are data processing, machine learning, web indexing and big data etc.
+* Master node manages cluster and health of other nodes.
+* Core node runs tasks and store long-running data.
+* Optionally task node runs tasks usually on Spot Instances.
+
+---
+## AWS Glue
+
+* Fully serverless managed service to extract, transform and load (ETL) data.
+* Use case is to prepare and transform data for analytics.
+* Convert data from CSV to Parquet format to facilitate queries from Athena.
+
+### Glue Data Catalog
+
+* Glue Data Crawler retrieves data from databases, such as RDS, S3, DynamoDB etc, and write metadata into the AWS Glue Data Catalog.
+* Glue leverages Data Catalog to perform ETL data jobs.
+* Athena, Redshift Spectrum and EMR leverages Data Catalog for discovery purposes.
+
+### Glue Services
+
+* Glue Job Bookmarks.
+  - prevent re-processing of old data.
+* Glue Elastic View.
+  - combines and replicates data across multiple data stores.
+  - no custom code required as Glue monitors for changes in the databases.
+  - leverages a virtual table or view.
+* Glue DataBrew.
+  - clean and normalize data using pre-built transformation.
+* Glue Studio.
+  - new GUI to create, run and monitor ETL jobs.
+* Glue Streaming ETL.
+  - built on Apache Spark Structured Streaming.
+  - compatible with Kinesis Data Streams, Kafka, MSK.
+
+---
 ## AWS Lake Formation
 
 AWS is a fully managed service to set up a Data Lake, which is a central place to have all your data for analytics purposes.

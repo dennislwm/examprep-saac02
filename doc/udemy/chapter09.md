@@ -69,6 +69,23 @@ For HA across multiple Regions, use Aurora Global tables.
 * Very fast and cost-effective.
 
 ---
+## RDS Maintenance
+
+* Hardware
+  - Single AZ deployments are unavailable for a few minutes.
+  - Multi-AZ deployments are unavailable for the time it takes the instance to failover, usually about 60 seconds. However if only the secondary AZ is affected, then there is no downtime.
+
+* Operating System
+  - Single AZ deployments are unavailable for a few minutes.
+  - Multi-AZ deployments, the secondary instance is applied first, then the instance fails over, and the primary instances is updated. The downtime is the time it takes to failover, usually about 60 seconds.
+
+* Database Engine
+  - Single AZ deployments are unavailable for a few minutes.
+  - Multi-AZ deployments, both the primary and secondary instances are upgraded at the same time. The downtime varies based on the size of your DB instance, however you can minimize downtime using a blue/green deployment.
+  - Multi-AZ major version upgrades are only supported for RDS for PostgreSQL, while minor version upgrades are supported for all engines.
+  - Major version upgrades must be done manually, while minor version upgrades can be done either manually or with the option to `Auto minor version upgrade`, where RDS schedules the upgrade to run during a maintenance window.
+
+---
 ## RDS and Aurora Security
 
 * Server-side encryption.
@@ -156,3 +173,5 @@ The authentication token is a short-lived credential that is managed externally 
 * [IAM database authentication for MariaDB, MySQL, and PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html)
 * [High availability for Amazon Aurora](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html)
 * [Caching strategies](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html)
+* [How do I minimize downtime during required Amazon RDS maintenance?](https://repost.aws/knowledge-center/rds-required-maintenance)
+* [Upgrading a DB instance engine version](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.Upgrading.html)

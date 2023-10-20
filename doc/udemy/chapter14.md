@@ -8,6 +8,7 @@ You can encrypt data at rest in S3 buckets using one of 4 methods:
   - SSE-S3 with AWS owned keys (default which is free).
   - SSE-KMS with AWS managed keys stored in KMS.
   - SSE-C with customer provided keys outside of AWS.
+  - Encrypts only the object data, not the metadata.
 * Client Side Encryption (CSE)
   - clients must encrypt data before sending data to S3 buckets.
   - must use HTTPS for sending data.
@@ -22,6 +23,37 @@ Encryption in transit:
 * HTTPS is recommended and used by default.
 * Force encryption in transit using a resource policy in the S3 bucket.
   - `Condition.Bool.aws:SecureTransport: false`
+
+### SSE-S3
+
+* Default option for encryption at rest is SSE-S3 which is free.
+* Each object is encrypted with a unique key, which in turn is encrypted with a root key.
+* Automatic rotation of root key.
+* Uses 256-bit Advanced Encryption Standard (AES-256) to encrypt your data.
+* S3 PUT request includes the `x-amz-server-side-encryption` header with a value equals to `AES256`.
+
+### SSE-KMS
+
+* Encryption at rest is provided through an integration of the AWS KMS service.
+* View separate keys, edit control policies, and follow the keys in CloudTrail.
+* Create and manage customer managed keys, or use AWS managed keys.
+* S3 checksum as part of each object's metadata is stored in encrypted form.
+* KMS keys must be in the same Region as the bucket.
+* S3 uses the KMS features for envelope encryption, and stores the encrypted data key as metadata with the encrypted data.
+* Envelope encryption means your data is encrypted using a data key, and then the data key is further encrypted with a KMS key.
+* When an object is written to S3 bucket:
+  - KMS generates a data key, encrypts it under the KMS key, and sends both the plaintext data key and the encrypted key to S3.
+  - S3 receives both the plaintext data key and encrypted key.
+  - S3 uses the former plaintext data key to encrypt the data, and removes the plaintext data key from memory.
+  - S3 stores the latter encrypted key as metadata with the encrypted data.
+
+### SSE-C
+
+* Encryption at rest is managed with customer-provided keys.
+* S3 manages the encryption as it writes to disks by applying AES-256 encryption to your data.
+* Customer manages the encryption keys in an external key store.
+* For a version-enabled bucket, each object version can have its own encryption key.
+* S3 PUT request includes the `x-amz-server-side-encryption-customer-algorithm` header with a value of `true`.
 
 ---
 ## S3 Cross-Origin Resource Sharing (CORS)
@@ -149,3 +181,7 @@ To use S3 Object Lock, Versioning must be enabled on an S3 bucket.
 ## Reference
 
 * [S3 Glacier Vault Lock](https://docs.aws.amazon.com/amazonglacier/latest/dev/vault-lock.html)
+* [Protecting data with server-side encryption](https://docs.aws.amazon.com/AmazonS3/latest/userguide/serv-side-encryption.html)
+* [Using server-side encryption with Amazon S3 managed keys (SSE-S3)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html)
+* [Using server-side encryption with AWS KMS Keys (SSE-KMS)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html)
+* [Using server-side encryption with customer-provided keys (SSE-C)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html)

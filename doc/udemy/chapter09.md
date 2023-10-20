@@ -103,17 +103,35 @@ For HA across multiple Regions, use Aurora Global tables.
 * SSL in flight encryption is supported.
 * SASL-based authentication is supported by Memcached, but not Redis.
 
-### Load Data into ElastiCache
+---
+## Caching Strategies
 
-* Lazy Loading
+There are two strategies you can implement for populating and maintaining your cache depending on the access patterns to your data: Lazy Loading and Write Through.
+
+Both strategies have their benefits and shortfalls, but adding TTL to each strategy can mitigate their shortfalls.
+
+* Lazy Loading (read updates)
+  - data is cached only for requested data and when required.
   - all read data is cached, but data can become stale.
-  - during a cache miss, data is fetched from the database.
-* Write Through
+  - during a cache miss or has expired, data is fetched from the database.
+  - node failures are not fatal for your application, though with increased latency.
+  - cache misses have a noticable delay.
+  - cache can become stale as there are no updates even when data is changed.
+* Write Through (write updates)
+  - data is cached whenever data is written to the database.
   - adds or update cache, when written to a database, no stale data.
+  - no cache misses or has expired.
+  - write requests have a noticable delay compared to read requests.
+  - every write involves a write to the cache and a write to the database.
+  - node failures are fatal, as missing data will not appeaer until data is written.
+  - wasted resources as most data is never read.
+* Adding TTL
+  - For lazy loading, adding a TTL ensures that cache doesn't become stale.
+  - For write through, adding a TTL ensures less wasted resources from data that is never read.
 * Session Store
   - store temporary session data in cache using TTL features.
-* Redis Sorted
-  - guarantees both uniqueness and elemennt ordering.
+* Redis Sorted Set
+  - guarantees both uniqueness and element ordering.
   - each time an element added, it is ranked in real time, and added in correct order.
   - use case is for a real time leaderboard.
 
@@ -137,3 +155,4 @@ The authentication token is a short-lived credential that is managed externally 
 
 * [IAM database authentication for MariaDB, MySQL, and PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html)
 * [High availability for Amazon Aurora](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html)
+* [Caching strategies](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Strategies.html)

@@ -94,14 +94,43 @@ AWS Global Accelerator is a networking service, in front of your application's L
 
 AWS ElastiCache is a managed version of two open-source caches: Memcached and Redis. Neither of these tools are specific to AWS, but by using ElastiCache you avoid a lot of common issues you might encounter in deployment.
 
+* No longer perform management tasks such as hardware, software, setup, configuration, and failure recovery.
+
+* Have access to monitoring metrics associated with your nodes.
+
+* Cost-efficient and resizable hardware capacity.
+
+* ElastiCache for Redis has improved reliability and efficiency, and features cluster resizing, supports encryption, and is HIPAA eligible and PCI DSS compliant.
+
+* ElastiCache for Memcached features auto discovery, by simplifying the way an application connects to a cluster.
+
 ### Memcached vs Redis
 
-|            Memcached            |             Redis             |
-|:-------------------------------:|:-----------------------------:|
-|   Simple DB caching solution    |      DB caching solution      |
-|      Not a database itself      |  A standalone NoSQL database  |
-| No failover or multi-AZ support | Failover and multi-AZ support |
-|           No backups            |       Backups available       |
+Memcached is designed for simplicity while Redis offers a rich set of features that make it effective for a wide range of use cases.
+
+|             Memcached              |               Redis                |
+|:----------------------------------:|:----------------------------------:|
+|    Low latency, in-memory cache    |    Low latency, in-memory cache    |
+| Support many programming languages | Support many programming languages |
+|       Simple data structures       |      Advanced data structures      |
+|           Multithreaded            |          Single threaded           |
+|           No Replication           |            Replication             |
+|             No Pub/Sub             |              Pub/Sub               |
+|           No Geospatial            |             Geospatial             |
+|     Simple DB caching solution     |        DB caching solution         |
+|       Not a database itself        |    A standalone NoSQL database     |
+|  No failover or multi-AZ support   |   Failover and multi-AZ support    |
+|             No backups             |         Backups available          |
+
+### In-Memory Data Store
+
+The primary purpose of an in-memory data store is to provide minimal latency and inexpensive access to copies of data. An example is queries that involve joins across multiple tables, by caching such query results you can quickly retrieve the data multiple times without having to re-execute the query.
+
+* Speed and Expense - a slow and expensive query is a candidate for caching.
+
+* Data and Access Pattern - a query result that is relatively static and frequently accessed is a candidate for caching.
+
+* Staleness - cached data is stale data, hence determine your application's tolerance for stale data.
 
 ### AWS DynamoDB Accelerator (DAX)
 
@@ -118,3 +147,9 @@ AWS ElastiCache is a managed version of two open-source caches: Memcached and Re
 |       ElastiCache       |         DAX          |
 |:-----------------------:|:--------------------:|
 | More flexibility on RDS | Specific to DynamoDB |
+
+---
+## Reference
+
+* [Comparing Redis and Memcached](https://aws.amazon.com/elasticache/redis-vs-memcached)
+* [Common ElastiCache Use Cases and How ElastiCache Can Help](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/elasticache-use-cases.html)

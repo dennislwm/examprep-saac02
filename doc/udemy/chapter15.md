@@ -10,6 +10,7 @@
         - [Cache Invalidation](#cache-invalidation)
         - [High Availability with Backend Origin Failover](#high-availability-with-backend-origin-failover)
         - [Secure Backend Origin with Field-Level Encryption](#secure-backend-origin-with-field-level-encryption)
+    - [CloudFront Secured Access](#cloudfront-secured-access)
     - [AWS Global Accelerator](#aws-global-accelerator)
         - [Unicast IP vs Anycast IP](#unicast-ip-vs-anycast-ip)
         - [Global Accelerator vs CloudFront](#global-accelerator-vs-cloudfront)
@@ -17,9 +18,32 @@
     - [References](#references)
 
 <!-- /TOC -->
+    - [Using AWS Global Accelerator to Achieve Blue/Green Deployments](#using-aws-global-accelerator-to-achieve-bluegreen-deployments)
+    - [References](#references)
+
+<!-- /TOC -->
 
 ---
 ## CloudFront
+
+When you create a CloudFront distribution, you specify the origin where CloudFront sends requests for the files:
+
+* S3 bucket
+  - Give a CloudFront Origin Access Control (OAC) permission to read the files in your S3 bucket.
+  - Create the OAC and associate it with your CloudFront distribution.
+  - Remove permission for anyone else to use S3 URLs to read the files.
+  - This method is an alternative to using S3 Pre-Signed URL.
+* Application Load Balancer
+  - CloudFront can cache objects and reduce the load on your ALB.
+  - CloudFront can reduce latency and even protect some DDoS attacks.
+  - Configure CloudFront to add a custom header to requests.
+  - Configure the ALB to only forward requests that contain the custom header.
+  - Configure HTTPS connections to both viewers and your origin, using Viewer Protocol Policy and Origin Protocol Polciy respectively.
+* Lambda function URL
+* EC2 instance
+* CloudFront origin groups
+* MediaStore container or MediaPackage channel
+* Custom origin
 
 ### CloudFront - ALB or EC2 as an Backend Origin
 
@@ -70,6 +94,52 @@ CloudFront will only send request to the secondary origin after a request to the
 You can enforce end-to-end connections to backend origins by using field encryption together with HTTPS. Field-level encryption provides encryption of sensitive data at the edge, close to the user, and remains encrypted throughout your entire application stack.
 
 You can encrypt up to 10 individual data fields in a POST request, but you cannot encrypt all the data. Field encryption uses asymmetric encryption (public and private key pairs), and you must provide the public key to CloudFront.
+
+---
+## CloudFront Secured Access
+
+CloudFront provides several options for securing and restricting access to content:
+
+* Configure HTTPS connections.
+  - Require HTTPS to communicate with viewers.
+  - Require HTTPS to communicate with your origin.
+
+* Prevent users in specific geographic locations from accessing content.
+  - Allow or restrict access to all of the files at the country level.
+  - CloudFront geographic service applies to an entire distribution.
+  - Use a third-party geolocation service to allow or restrict access to a subset of the files at a finer granularity than the country level, i.e. city, zip, postal code, latitude etc. It is recommended to use CloudFront signed URLS when using a third-party geolocation service.
+
+* Require users to access content using CloudFront signed URLs or signed cookies.
+  - Restrict access to documents, files or content that is intended for selected users.
+  - Use signed URLs when you want to restrict access to individual files, or your viewers doesn't support cookies.
+  - Use signed cookies when you don't want to change your current URL or when you want to provide access to multiple files.
+  - Specify restrictions for TTL, starting date and time, IP addresses of viewers.
+    - Write a policy statement in JSON format that specifies the restrictions on the signed URLs or cookies, i.e. TTL etc.
+    - Must use RSA-SHA1 for signing URLs or cookies.
+  - CloudFront signed URL can be used with an S3 bucket origin.
+    - Give a CloudFront Origin Access Control (OAC) permission to read the files in your S3 bucket.
+    - Create the OAC and associate it with your CloudFront distribution.
+    - Remove permission for anyone else to use S3 URLs to read the files.
+    - This method is an alternative to using S3 Pre-Signed URL.
+  - CloudFront signed URL can be used with a custom origin.
+    - Configure CloudFront to forward custom headers to your origin.
+    - Set up custom headers to restrict access to your origin.
+    - Configure HTTPS connections to both viewers and your origin, using Viewer Protocol Policy and Origin Protocol Polciy respectively.
+
+* Set up field-level encryption for specific content fields.
+  - Enable your viewers to upload sensitive data to your origin.
+  - Sensitive data is encrypted at the edge, close to the user, and remains encrypted throughout AWS.
+  - Configure your distribution to use field-level encryption.
+  - Specify the fields in POST request that you want encrypted.
+  - Specify the public key to use to encrypt the fields.
+  - Specify up to 10 individual fields.
+
+* Use AWS WAF to control access to your content.
+  - Enable this one-click AWS WAF protection.
+  - CloudFront will create an AWS WAF web access control list (web ACL), configure the rules, and attach it to your distribution automatically.
+    - Block IP addresses based on AWS internal threat intelligence.
+    - Protect against common vulnerabilities found in web applications.
+  - Set up rate limiting.
 
 ---
 ## AWS Global Accelerator
@@ -130,4 +200,6 @@ With AWS Global Accelerator, you can shift traffic gradually or all at once betw
 ---
 ## References
 
-* [Using AWS Global Accelerator to achieve blue/green deployments](https://aws.amazon.com/blogs/networking-and-content-delivery/using-aws-global-accelerator-to-achieve-blue-green-deployments/)
+* [Using AWS Global Accelerator to achieve blue/green deployments](https://aws.amazon.com/blogs/networking-and-content-delivery/using-aws-global-accelerator-to-achieve-blue-green-deployments)
+* [Configuring secure access and restricting access to content](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/SecurityAndPrivateContent.html)
+* [Serving private content with signed URLs and signed cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html)

@@ -17,6 +17,9 @@
         - [ACM Integration with API Gateway](#acm-integration-with-api-gateway)
     - [AWS WAF](#aws-waf)
         - [AWS WAF using a Fixed IP](#aws-waf-using-a-fixed-ip)
+    - [AWS GuardDuty](#aws-guardduty)
+        - [GuardDuty Finding](#guardduty-finding)
+        - [GuardDuty Finding Type](#guardduty-finding-type)
     - [References](#references)
 
 <!-- /TOC -->
@@ -184,6 +187,57 @@ ALB does not support a fix IP address, but we can use Global Accelerator for a f
 * The WAF filters traffic using the fix IP address, and passes any valid traffic to the ALB.
 
 ---
+## AWS GuardDuty
+
+* Intelligent threat discovery to protect your AWS account.
+* Uses Machine Learning algorithms, anomaly detection, third-party data.
+* One click to enable (30-day trial).
+* AWS data sources includes:
+  - CloudTrail Events logs
+  - VPC Flow Logs
+  - DNS Logs
+  - EKS Audit Logs and runtime monitoring
+  - RDS and Aurora login activity
+  - EBS volumes
+  - Lambda network activity
+  - S3 Data Events and logs
+* Can set up EventBridge rules to be notified in case of findings.
+  - EventBridge rules can target AWS Lambda or SNS.
+* Findings of the same type and target resource are dynamically updated with new information, without needing to generate a new finding or look through multiple similar reports.
+* Findings of a different type or different resource are created with a unique finding ID.
+* The aggregation criteria for each finding type are determined by AWS and cannot be configured.
+* Can protect against CryptoCurrency attacks.
+  - Has a dedicated finding for Cryptocurrency.
+
+### GuardDuty Finding
+
+A finding represents a potential security issue detected within your AWS environment. Each finding has an assigned severity level within the 1.0 to 8.9 range (values 0 and 9-10 are reserved for future use) with higher values indicating greater security risk. GuardDuty breaks down this range into High (7-8), Medium (4-6), and Low (1-3) severity levels.
+
+### GuardDuty Finding Type
+
+One of the most useful pieces of information in the finding details is a finding type. For example, the GuardDuty `Recon:EC2/PortProbeUnprotectedPort` finding type quickly informs you that an EC2 instance has an unprotected port that a potential attacker is probing.
+
+The finding type has a naming convention of `ThreatPurpose:ResourceType/ThreatFamilyName.DetectionMechanism!Artifact`.
+
+* Threat Purpose
+  - Describes the primary purpose of a threat.
+  - Values can be `Backdoor`, `Behavior`, `CredentialAccess`, `Cryptocurrency`, `DefenseEvasion` etc.
+* Resource Type
+  - Describes the potential AWS resource target.
+  - Typical values can be EC2, S3, IAM, EKS etc.
+* Threat Family Name
+  - Describes the method in which GuardDuty detected the finding.
+  - Values can be `DenialOfService`, `NetworkPortUnusual`, `PortProbeUnprotectedPort` etc.
+* DetectionMechanism
+  - Describes a variation of the method in which GuardDuty detected the finding.
+  - Values can be `Tcp`, `Udp` etc, for example `DenialOfService.Tcp`.
+* Artifact
+  - Describes a specific resource owned by a tool that is used in the malicious activity.
+  - Values can be `DNS` etc, for example `BitcoinTool.B!DNS` indicates a known Bitcon-related domain.
+
+---
 ## References
 
 * [AWS KMS concepts](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html)
+* [Understanding Amazon GuardDuty findings](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html)
+* [GuardDuty finding format](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-format.html)

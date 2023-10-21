@@ -1,10 +1,21 @@
 # More Solution Architectures
 
----
-## Event Processing in AWS
+<!-- TOC -->
 
-### SQS and Lambda
+- [More Solution Architectures](#more-solution-architectures)
+        - [SNS and Lambda](#sns-and-lambda)
+        - [Fan Out with SNS and SQS](#fan-out-with-sns-and-sqs)
+        - [S3 Event Notification](#s3-event-notification)
+        - [External Event Notification](#external-event-notification)
+    - [High Performance Computing HPC](#high-performance-computing-hpc)
+        - [Data Management and Transfer](#data-management-and-transfer)
+        - [Compute and Networking](#compute-and-networking)
+        - [Storage](#storage)
+        - [Automation and Orchestration](#automation-and-orchestration)
+    - [AWS Prescriptive Guidance Patterns](#aws-prescriptive-guidance-patterns)
+    - [Reference](#reference)
 
+<!-- /TOC -->
 * Lambda polls SQS and retries a defined number of times to retrieve the message from SQS before it fails.
 * Set up a Dead Letter Queue to allow failed messages to be removed from main queue to prevent blocking.
 
@@ -84,3 +95,50 @@
   - Configure with text files.
   - Automate creation of VPC, subnet, cluster type and instance types.
   - Ability to enable EFS on the cluster, improves network performance.
+
+---
+## AWS Prescriptive Guidance Patterns
+
+AWS Prescriptive Guidance patterns provide step-by-step instructions, architecture, tools, and code for implementing specific cloud migration, modernization, and deployment scenarios.
+
+You can use these patterns to move your on-premises or cloud workloads to AWS, regardless of whether you're in the proof of concept, planning, or implementation phase of your project.
+
+The list of patterns by technical domain are not exhaustive below:
+
+* Analytics
+  - Build an ETL service pipeline to load data incrementally from S3 to Redshift using AWS Glue.
+  - Generate test data using an AWS Glue job and Python.
+  - Migrate Apache Cassandra workloads to Amazon Keyspaces using AWS Glue.
+  - Migrate an on-premises Apache Kafka cluster to Amazon MSK by using MirrorMaker.
+  - Orchestrate an ETL pipeline with validation, transformation, and partitioning using AWS Step Functions.
+  - Access, query, and join DynamoDB tables using AWS Athena.
+  - Subscribe a Lambda function to event notifications from S3 buckets in different AWS Regions.
+  - Three AWS Glue ETL job types for converting data to Apache Parquet (to facilitate queries from AWS Athena).
+  - Visualize Redshift audit logs using AWS Athena and QuickSight.
+  - Visualize IAM credential reports for all AWS accounts using AWS QuickSight.
+* Cloud-native
+  - Build a video processing pipeline by using Kinesis Video Streams and Fargate.
+  - Copy data from an S3 bucket to another account and Region by using the AWS CLI.
+* Containers & Microservices
+  - Access container applications privately on ECS by using AWS PrivateLink and a NLB.
+  - Automate backups for RDS for PostgreSQL DB instances by using AWS Batch.
+* Content Delivery
+  - Send AWS WAF logs to Splunk by using AWS Firewall Manager and Kinesis Data Firehose.
+  - Serve static content in an S3 bucket through a VPC by using CloudFront.
+* Data Lakes
+  - Configure cross-account access to a shared AWS Glue Data Catalog using AWS Athena.
+* Databases
+  - Block public access to RDS by using Cloud Custodian.
+  - Copy DynamoDB tables across accounts by using AWS Backup.
+  - Export RDS for SQL Server tables to an S3 bucket by using AWS DMS.
+  - Implement cross-Region disaster recovery with AWS DMS and Amazon Aurora.
+* Infrastructure
+  - Check EC2 instances for mandatory tags at launch.
+* Machine Learning & AI
+  - Aggregate data in DynamoDB for ML forecasting in Athena.
+  - Automatically extract content from PDF files using AWS Textract.
+
+---
+## Reference
+
+* [AWS Prescriptive Guidance Patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/welcome.html)

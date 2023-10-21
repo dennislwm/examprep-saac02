@@ -3,22 +3,22 @@
 <!-- TOC -->
 
 - [Chapter 6. EC2 - SA Associate Level](#chapter-6-ec2---sa-associate-level)
-    - [EC2 Placement Groups](#ec2-placement-groups)
+        - [Placement Group Strategy](#placement-group-strategy)
     - [EC2 Hibernate](#ec2-hibernate)
     - [References](#references)
 
 <!-- /TOC -->
-
----
-## EC2 Placement Groups
-
-You can define an EC2 placement strategy using placement groups. There are three types of strategies for placement groups:
-
-* Cluster - clusters instances into a low-latency group in a single AZ.
-
 * Spread - spreads instances across underlying hardware (max 7 instances per group per AZ) for critical applications.
 
 * Partition - spreads instances across many different partitions (which rely on different sets of racks) within a single AZ. Scales to 100s of EC2 instances per group (Hadoop, Cassandra, Kafka).
+
+### Placement Group Strategy
+
+* To achieve minimal latency for tightly coupled node-to-node communication, e.g. High Performance Computing, use Cluster Placement.
+
+* To achieve distributed and replicated workloads, e.g. Big Data, use Partition Placement.
+
+* To achieve minimal correlated failures for a small group of instances (up to 7), for loosely coupled nodes or monolith workloads, use Spread Placement.
 
 ---
 ## EC2 Hibernate
@@ -44,4 +44,4 @@ Use cases:
 ---
 ## References
 
-* []
+* [Placement groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html)

@@ -3,57 +3,58 @@
 <!-- TOC -->
 
 - [Chapter 19. Governance](#chapter-19-governance)
-  - [Managing Accounts with Organizations](#managing-accounts-with-organizations)
-    - [AWS Organisations Key Features](#aws-organisations-key-features)
-    - [Exam Tips](#exam-tips)
-  - [Sharing Resources with AWS Resource Access Manager RAM](#sharing-resources-with-aws-resource-access-manager-ram)
-    - [Benefits of Sharing with AWS RAM](#benefits-of-sharing-with-aws-ram)
-    - [Exam Tips](#exam-tips)
-  - [Setting Up Cross-Account Role Access](#setting-up-cross-account-role-access)
-    - [Steps to Setup Cross-Account Role Access](#steps-to-setup-cross-account-role-access)
-    - [Exam Tips](#exam-tips)
-  - [Inventory Management with AWS Config](#inventory-management-with-aws-config)
-    - [State of Your Architecture](#state-of-your-architecture)
-    - [Exam Tips](#exam-tips)
-  - [Offloading Active Directory to Directory Service](#offloading-active-directory-to-directory-service)
-    - [AWS Directory Service Types](#aws-directory-service-types)
-  - [Exploring with Cost Explorer](#exploring-with-cost-explorer)
-    - [Cost Explorer Features](#cost-explorer-features)
-  - [Using AWS Budgets](#using-aws-budgets)
-    - [Types of Budgets](#types-of-budgets)
-  - [Optimizing Costs with AWS Cost and Usage Reports](#optimizing-costs-with-aws-cost-and-usage-reports)
-    - [AWS CURS Use Cases](#aws-curs-use-cases)
-    - [Exam Tips](#exam-tips)
-  - [AWS Compute Optimizer](#aws-compute-optimizer)
-    - [AWS Compute Optimizer Resources](#aws-compute-optimizer-resources)
-    - [Supported Account Types](#supported-account-types)
-    - [Exam Tips](#exam-tips)
-  - [Reducing Compute Spend Using AWS Savings Plans](#reducing-compute-spend-using-aws-savings-plans)
-    - [What Are Saving Plans?](#what-are-saving-plans)
-    - [Saving Plan Types](#saving-plan-types)
-    - [Using and Applying Saving Plans](#using-and-applying-saving-plans)
-  - [Auditing with Trusted Advisor](#auditing-with-trusted-advisor)
-    - [Supported Checks](#supported-checks)
-    - [Exam Tips](#exam-tips)
-  - [Enforcing Account Governance via AWS Control Tower](#enforcing-account-governance-via-aws-control-tower)
-    - [Features and Terms](#features-and-terms)
-    - [Guardrails](#guardrails)
-  - [Managing Software Licenses in AWS with AWS License Manager](#managing-software-licenses-in-aws-with-aws-license-manager)
-  - [Monitoring Health Events in the AWS Health Dashboard](#monitoring-health-events-in-the-aws-health-dashboard)
-    - [AWS Health Concepts](#aws-health-concepts)
-  - [Standardizing Self-Service Deployments Using AWS Service Catalog and AWS Proton](#standardizing-self-service-deployments-using-aws-service-catalog-and-aws-proton)
-    - [Benefits of AWS Service Catalog](#benefits-of-aws-service-catalog)
-    - [AWS Proton](#aws-proton)
-  - [Optimizing Architectures with the AWS Well-Architected Tool](#optimizing-architectures-with-the-aws-well-architected-tool)
-    - [AWS Well-Architected Framework Review](#aws-well-architected-framework-review)
-    - [AWS Well-Architected Tool](#aws-well-architected-tool)
-  - [Lab 19. Using AWS Tags and Resource Groups](#lab-19-using-aws-tags-and-resource-groups)
-    - [Introduction](#introduction)
-    - [Runbooks](#runbooks)
-      - [Set Up AWS Config](#set-up-aws-config)
-      - [Tag an AMI and EC2 Instance](#tag-an-ami-and-ec2-instance)
-      - [Tag Applications with the Tag Editor](#tag-applications-with-the-tag-editor)
-      - [Create Resource Groups and Use AWS Config Rules for Compliance](#create-resource-groups-and-use-aws-config-rules-for-compliance)
+    - [Managing Accounts with Organizations](#managing-accounts-with-organizations)
+        - [AWS Organisations Key Features](#aws-organisations-key-features)
+        - [Exam Tips](#exam-tips)
+    - [Sharing Resources with AWS Resource Access Manager RAM](#sharing-resources-with-aws-resource-access-manager-ram)
+        - [Benefits of Sharing with AWS RAM](#benefits-of-sharing-with-aws-ram)
+        - [Exam Tips](#exam-tips)
+    - [Setting Up Cross-Account Role Access](#setting-up-cross-account-role-access)
+        - [Steps to Setup Cross-Account Role Access](#steps-to-setup-cross-account-role-access)
+        - [Exam Tips](#exam-tips)
+    - [Inventory Management with AWS Config](#inventory-management-with-aws-config)
+        - [State of Your Architecture](#state-of-your-architecture)
+        - [Exam Tips](#exam-tips)
+    - [Offloading Active Directory to Directory Service](#offloading-active-directory-to-directory-service)
+        - [AWS Directory Service Types](#aws-directory-service-types)
+    - [Exploring with Cost Explorer](#exploring-with-cost-explorer)
+        - [Cost Explorer Features](#cost-explorer-features)
+    - [Using AWS Budgets](#using-aws-budgets)
+        - [Types of Budgets](#types-of-budgets)
+    - [Optimizing Costs with AWS Cost and Usage Reports](#optimizing-costs-with-aws-cost-and-usage-reports)
+        - [AWS CURS Use Cases](#aws-curs-use-cases)
+        - [Exam Tips](#exam-tips)
+    - [AWS Compute Optimizer](#aws-compute-optimizer)
+        - [AWS Compute Optimizer Resources](#aws-compute-optimizer-resources)
+        - [Supported Account Types](#supported-account-types)
+        - [Exam Tips](#exam-tips)
+    - [Reducing Compute Spend Using AWS Savings Plans](#reducing-compute-spend-using-aws-savings-plans)
+        - [What Are Saving Plans?](#what-are-saving-plans)
+        - [Saving Plan Types](#saving-plan-types)
+        - [Using and Applying Saving Plans](#using-and-applying-saving-plans)
+    - [Auditing with Trusted Advisor](#auditing-with-trusted-advisor)
+        - [Supported Checks](#supported-checks)
+        - [Exam Tips](#exam-tips)
+    - [Enforcing Account Governance via AWS Control Tower](#enforcing-account-governance-via-aws-control-tower)
+        - [Features and Terms](#features-and-terms)
+        - [Guardrails](#guardrails)
+    - [Managing Software Licenses in AWS with AWS License Manager](#managing-software-licenses-in-aws-with-aws-license-manager)
+    - [Monitoring Health Events in the AWS Health Dashboard](#monitoring-health-events-in-the-aws-health-dashboard)
+        - [AWS Health Concepts](#aws-health-concepts)
+    - [Standardizing Self-Service Deployments Using AWS Service Catalog and AWS Proton](#standardizing-self-service-deployments-using-aws-service-catalog-and-aws-proton)
+        - [Benefits of AWS Service Catalog](#benefits-of-aws-service-catalog)
+        - [AWS Proton](#aws-proton)
+    - [Optimizing Architectures with the AWS Well-Architected Tool](#optimizing-architectures-with-the-aws-well-architected-tool)
+        - [AWS Well-Architected Framework Review](#aws-well-architected-framework-review)
+        - [AWS Well-Architected Tool](#aws-well-architected-tool)
+    - [Lab 19. Using AWS Tags and Resource Groups](#lab-19-using-aws-tags-and-resource-groups)
+        - [Introduction](#introduction)
+        - [Runbooks](#runbooks)
+            - [Set Up AWS Config](#set-up-aws-config)
+            - [Tag an AMI and EC2 Instance](#tag-an-ami-and-ec2-instance)
+            - [Tag Applications with the Tag Editor](#tag-applications-with-the-tag-editor)
+            - [Create Resource Groups and Use AWS Config Rules for Compliance](#create-resource-groups-and-use-aws-config-rules-for-compliance)
+    - [Reference](#reference)
 
 <!-- /TOC -->
 
@@ -146,15 +147,32 @@ AWS Config is an inventory management and control tool that allows you to **show
 ---
 ## Offloading Active Directory to Directory Service
 
-AWS Directory Service is a fully managed version of Active Directory (AD).
+AWS Directory Service is a fully managed version of Active Directory (AD). A directory store information about users, groups, and devices, through which administrators manage access to information and resources.
 
 ### AWS Directory Service Types
 
-* Managed Microsoft AD - Entire AD suite in AWS.
+For AWS Cloud AD, there are two choices:
 
-* AD Connector - **Creates a tunnel between AWS and your on-premises AD**.
+* Managed Microsoft AD
+  - Entire AD suite in AWS.
+  - Provide SSO to applications and services.
+  - Create and apply group policy.
+  - Enable MFA.
 
-* Simple AD - Standalone AD powered by Linux Samba Active Directory.
+* Simple AD
+  - Standalone AD powered by Linux Samba Active Directory.
+  - Two sizes: small (500 users) and large (5,000 users).
+  - Subset of features offered by Managed Microsoft AD.
+  - Does not support MFA, RDS for SQL Server, PowerShell, AD Administrative Center, trust relationships with other domains etc.
+
+For On-Premises to AWS Cloud, there is one choice:
+
+* AD Connector 
+  - Creates a tunnel between AWS and your on-premises AD.
+  - Two sizes: small and large.
+  - Does not support AD transitive trusts.
+  - Enable custom MFA.
+
 
 ---
 ## Exploring with Cost Explorer
@@ -628,3 +646,8 @@ You will use SQS to trigger a Lambda function, which will process messages from 
 23. You should see it doesn't match the AMI ID you noted in EC2, which means the rule successfully identified non-compliant resources.
 
 </details>
+
+---
+## Reference
+
+* [What is AWS Directory Service?](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html)

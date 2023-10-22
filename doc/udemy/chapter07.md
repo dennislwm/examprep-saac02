@@ -21,6 +21,16 @@ EC2 Instance Store has a higher performance than EBS volumes with better I/O per
 
 It is primarily used to buffer cache temporary data for high-performance computation.
 
+* Instace store volumes are attached only at instance launch, but not after launch.
+
+* You cannot detach an instance store volume from one instance and attach it to another instance.
+
+* You cannot configure an instance store volume to persist beyond the lifetime of its associated instance.
+
+* The data persists only if the instance is rebooted, but does not persist if the instance is stopped, hibernated, or terminated.
+
+* The data persists only if an instance store-backed AMI is created from the instance, but does not persist if a Windows AMI or EBS-backed AMI is created from the instance.
+
 ---
 ## Amazon EFS
 
@@ -95,3 +105,4 @@ The throughput of a file system cannot exceed a combined 100% of its read and wr
 
 * [EFS storage classes](https://docs.aws.amazon.com/efs/latest/ug/storage-classes.html)
 * [Amazon EFS performance](https://docs.aws.amazon.com/efs/latest/ug/performance.html)
+* [Amazon EC2 instance store](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html)

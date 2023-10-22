@@ -3,16 +3,74 @@
 <!-- TOC -->
 
 - [Chapter 7. EC2 Instance Storage](#chapter-7-ec2-instance-storage)
+    - [EBS Volume](#ebs-volume)
+        - [EBS Volume Type](#ebs-volume-type)
+    - [EBS Security](#ebs-security)
+    - [EBS Performance](#ebs-performance)
     - [EC2 Instance Store](#ec2-instance-store)
     - [Amazon EFS](#amazon-efs)
         - [EFS Storage Class](#efs-storage-class)
-        - [EFS Performance](#efs-performance)
+    - [EFS Security](#efs-security)
+    - [EFS Performance](#efs-performance)
         - [Latency](#latency)
         - [Throughput](#throughput)
         - [IOPS](#iops)
     - [References](#references)
 
 <!-- /TOC -->
+
+---
+## EBS Volume
+
+* Think of EBS volume as a USB network drive, which can be detached from an EC2 instance and attached to another instance.
+
+* `DeleteOnTermination` attribute is enabled on the root EBS volume, but not any other attached EBS volumes.
+
+* Can copy EBS snapshot across AZ or Region, and restore it to another Region.
+
+* EBS Snapshot Archive is an archive tier that is 75% cheaper, and restores at least 24 hours.
+
+* Recycle bin for deleted EBS snapshots that can you can retain from 1 day to 1 year, in case of accidental deletion.
+
+* For `io1`, `io2` volumes, you can Multi-Attach the same EBS volume with equal read and write permissions to multiple EC2 instances (up to 16 instances) within the same AZ. You must use a cluster-aware File System (not XFS, EXT4 etc).
+
+### EBS Volume Type
+
+There are two EBS volume types:
+
+* Root EBS volumes:
+  - General Purpose SSD (`gp2`, `gp3`) - volume that balances price and performance for a wide variety of workloads.
+    - `gp3` has a baseline of 3,000 IOPS and throughput of 125 MiB/s, which can increase to 16,000 IOPS and 1,000 MiB/s throughput independently.
+    - `gp2` has a baseline of 3,000 burst IOPS, where 3 IOPS per GB, and up to 16,000 burst IOPS with a 5,334 GB storage.
+    Note: Burst IOPS increases based on storage size.
+  - High Performance SSD (`io1`, `io2`) - volume for minimal latency and high throughput workloads, i.e. HPC.
+
+* Non-root EBS volumes:
+  - Low Cost HDD (`st1`) - volume for frequently accessed, throughput-intensive workloads.
+  - Lowest Cost HDD (`sc1`) - volume for infrequent accessed workloads.
+
+---
+## EBS Security
+
+Steps to encrypt an unencrypted EBS volume:
+
+1. Create an unencrypted EBS snapshot of the volume.
+2. Using COPY, encrypt the EBS snapshot.
+3. Create a new encrypted EBS volume from the encrypted snapshot.
+4. Attach the encrypted EBS volume to the original instance.
+
+---
+## EBS Performance
+
+* You can use any of the standard RAID configurations for your EBS volumes as long as it is supported by the OS for your instance.
+
+* Use RAID 0 when I/O performance is of the utmost importance, as you get the straight addition of throughput and IOPS when you add a volume.
+
+* In RAID 0, I/O is distributed across the volumes in a stripe, and performance of the stripe is limited to the worst performing volume in the set.
+
+* In RAID 0, the resulting size is the sum of the sizes of the volume, and the bandwidth is the sum of the available bandwidth of the volumes.
+
+* In RAID 0, the loss of a single volume in the set results in a complete loss for the array.
 
 ---
 ## EC2 Instance Store
@@ -55,7 +113,21 @@ Billing cost is based on:
 * IA read request
 * AWS Backup (for One Zone)
 
-### EFS Performance
+---
+## EFS Security
+
+* Data at rest encryption is supported when creating an EFS.
+  - EFS uses either SSE-EFS (default free) or SSE-KMS for key management.
+  - EFS metadata, i.e. file names, directory structure etc, are encrypted.
+  - If you require audit or compliance of keys, use SSE-KMS for key management.
+* Data in flight encryption is supported when you mount the EFS by enabling TLS.
+* Use both IAM identity policies and resource policies to control access to an EFS.
+  - The effective permission is the union of both identity and resource policies.
+  - When an EFS has `PolicyNotFound`, the default file system policy grants full access to any anonymous client.
+* Use a security group to authorize inbound and outbound access to an EFS.
+
+---
+## EFS Performance
 
 File system performance is typically measured by using the dimensions of latency, throughput, and input/output operations per second (IOPS).
 
@@ -106,3 +178,4 @@ The throughput of a file system cannot exceed a combined 100% of its read and wr
 * [EFS storage classes](https://docs.aws.amazon.com/efs/latest/ug/storage-classes.html)
 * [Amazon EFS performance](https://docs.aws.amazon.com/efs/latest/ug/performance.html)
 * [Amazon EC2 instance store](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html)
+* [Security in Amazon EFS](https://docs.aws.amazon.com/efs/latest/ug/security-considerations.html)

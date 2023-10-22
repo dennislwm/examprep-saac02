@@ -3,42 +3,59 @@
 <!-- TOC -->
 
 - [Chapter 6. Elastic Block Storage EBS and Elastic File System EFS](#chapter-6-elastic-block-storage-ebs-and-elastic-file-system-efs)
-    - [Hard Disk Drive HDD](#hard-disk-drive-hdd)
-    - [IOPS vs. Throughput](#iops-vs-throughput)
-    - [Exam Tips](#exam-tips)
-  - [Volumes and Snapshots](#volumes-and-snapshots)
-    - [Tips for Volumes](#tips-for-volumes)
-    - [Tips for Snapshots](#tips-for-snapshots)
-    - [Exam Tips](#exam-tips)
-  - [Protecting EBS Volumes with Encryption](#protecting-ebs-volumes-with-encryption)
-    - [Understanding Encryption](#understanding-encryption)
-    - [EBS Encryption](#ebs-encryption)
-    - [Exam Tips](#exam-tips)
-  - [EC2 Hibernation](#ec2-hibernation)
-    - [Exam Tips](#exam-tips)
-  - [EFS Overview](#efs-overview)
-    - [Controlling Performance](#controlling-performance)
-    - [Storage Tiers](#storage-tiers)
-    - [Exam Tips](#exam-tips)
-  - [FSx Overview](#fsx-overview)
-    - [FSx for Windows vs. EFS](#fsx-for-windows-vs-efs)
-    - [FSx for Lustre](#fsx-for-lustre)
-    - [Exam Tips](#exam-tips)
-  - [Amazon Machine Images: EBS vs. Instance Store](#amazon-machine-images-ebs-vs-instance-store)
-    - [Amazon EBS vs Instance Store](#amazon-ebs-vs-instance-store)
-    - [Instance Store Volumes](#instance-store-volumes)
-    - [EBS Volumes](#ebs-volumes)
-    - [Exam Tips](#exam-tips)
-  - [AWS Backup](#aws-backup)
-  - [Lab 6.1. Reduce Storage Costs with EFS](#lab-61-reduce-storage-costs-with-efs)
-    - [Introduction](#introduction)
-    - [Runbooks](#runbooks)
-      - [Create an EFS File System](#create-an-efs-file-system)
-      - [Mount the EFS File System and Test It](#mount-the-efs-file-system-and-test-it)
-      - [Remove Old Data](#remove-old-data)
+    - [EBS Overview](#ebs-overview)
+        - [Solid-State Drives SSD](#solid-state-drives-ssd)
+        - [Hard Disk Drive HDD](#hard-disk-drive-hdd)
+        - [IOPS vs. Throughput](#iops-vs-throughput)
+        - [Exam Tips](#exam-tips)
+    - [Volumes and Snapshots](#volumes-and-snapshots)
+        - [Tips for Volumes](#tips-for-volumes)
+        - [Tips for Snapshots](#tips-for-snapshots)
+        - [Exam Tips](#exam-tips)
+    - [Protecting EBS Volumes with Encryption](#protecting-ebs-volumes-with-encryption)
+        - [Understanding Encryption](#understanding-encryption)
+        - [EBS Encryption](#ebs-encryption)
+        - [Exam Tips](#exam-tips)
+    - [EC2 Hibernation](#ec2-hibernation)
+        - [Exam Tips](#exam-tips)
+    - [EFS Overview](#efs-overview)
+        - [Controlling Performance](#controlling-performance)
+        - [Storage Tiers](#storage-tiers)
+        - [Exam Tips](#exam-tips)
+    - [FSx Overview](#fsx-overview)
+        - [FSx for Windows vs. EFS](#fsx-for-windows-vs-efs)
+        - [FSx for Lustre](#fsx-for-lustre)
+        - [Exam Tips](#exam-tips)
+    - [Amazon Machine Images: EBS vs. Instance Store](#amazon-machine-images-ebs-vs-instance-store)
+        - [Amazon EBS vs Instance Store](#amazon-ebs-vs-instance-store)
+        - [Instance Store Volumes](#instance-store-volumes)
+        - [EBS Volumes](#ebs-volumes)
+        - [Exam Tips](#exam-tips)
+    - [AWS Backup](#aws-backup)
+    - [Lab 6.1. Reduce Storage Costs with EFS](#lab-61-reduce-storage-costs-with-efs)
+        - [Introduction](#introduction)
+        - [Runbooks](#runbooks)
+            - [Create an EFS File System](#create-an-efs-file-system)
+            - [Mount the EFS File System and Test It](#mount-the-efs-file-system-and-test-it)
+            - [Remove Old Data](#remove-old-data)
 
 <!-- /TOC -->
-  - Up to 99.9% durability
+
+
+---
+## EBS Overview
+
+There are different use cases for each type of Elastic Block Storage (EBS), which are storage volumes or virtual hard disk that you can attach to your EC2.
+
+* Production workloads: Designed for mission-critical workloads
+
+* Highly available: Automatically replicated within a single AZ to protect against hardware failures
+
+* Scalable: Dynamically increase capacity and change the volume type with no downtime or performance impact to your live systems
+
+EBS Volume Types:
+
+### Solid-State Drives (SSD)
 
 * General Purpose SSD (`gp3`):
   - Predictable 3,000 IOPS baseline performance and 125 MiB/s regardless of volume size

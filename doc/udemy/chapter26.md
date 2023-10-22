@@ -15,6 +15,8 @@
         - [Import a Public Certificate](#import-a-public-certificate)
         - [ACM Integration with ALB](#acm-integration-with-alb)
         - [ACM Integration with API Gateway](#acm-integration-with-api-gateway)
+    - [AWS Firewall Manager](#aws-firewall-manager)
+        - [WAF vs Firewall Manager vs Shield](#waf-vs-firewall-manager-vs-shield)
     - [AWS WAF](#aws-waf)
         - [AWS WAF using a Fixed IP](#aws-waf-using-a-fixed-ip)
     - [AWS GuardDuty](#aws-guardduty)
@@ -167,6 +169,35 @@
   - For Regional Endpoint, the TLS certificate must be imported into the API Gateway.
 
 ---
+## AWS Firewall Manager
+
+* Manage firewall rules in all accounts of an AWS Organization.
+
+* Set a security policy that is a common set of security rules.
+  - WAF rules for ALB, API Gateways, CloudFront.
+  - AWS Shield Advanced for ELB, Elastic IP, CloudFront.
+  - VPC Security Groups for EC2, ALB, ENI.
+  - AWS Network Firewall.
+  - Route 53 Resolver DNS Firewall.
+  - Not supported NACLs.
+
+* Policies are create at the region level.
+
+* Rules are applied to new resources as they are created across all and future AWS accounts in your OU.
+
+* Enable automatic remediation to automatically monitor for drift in policy and apply rules on non-compliant resources.
+
+### WAF vs Firewall Manager vs Shield
+
+* WAF, Firewall Manager and Shield are used in combination for a comprehensive protection.
+
+* For granular protection of your resources, WAF allows you to define your Web ACL rules and is the correct choice.
+
+* For automating configuration across your AWS accounts, use Firewall Manager with WAF (managed rules) or Shield Advanced.
+
+* For additional features such as DDoS protection etc, use Shield Advanced.
+
+---
 ## AWS WAF
 
 AWS WAF protects your web application from common Layer 7 (HTTP/S) exploits, but not Layer 4 (TCP/UDP).
@@ -241,3 +272,4 @@ The finding type has a naming convention of `ThreatPurpose:ResourceType/ThreatFa
 * [AWS KMS concepts](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html)
 * [Understanding Amazon GuardDuty findings](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings.html)
 * [GuardDuty finding format](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-format.html)
+* [AWS Firewall Manager FAQs](https://aws.amazon.com/firewall-manager/faqs)

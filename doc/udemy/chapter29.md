@@ -3,6 +3,8 @@
 <!-- TOC -->
 
 - [More Solution Architectures](#more-solution-architectures)
+    - [Event Processing in AWS](#event-processing-in-aws)
+        - [SQS and Lambda](#sqs-and-lambda)
         - [SNS and Lambda](#sns-and-lambda)
         - [Fan Out with SNS and SQS](#fan-out-with-sns-and-sqs)
         - [S3 Event Notification](#s3-event-notification)
@@ -16,6 +18,13 @@
     - [Reference](#reference)
 
 <!-- /TOC -->
+
+
+---
+## Event Processing in AWS
+
+### SQS and Lambda
+
 * Lambda polls SQS and retries a defined number of times to retrieve the message from SQS before it fails.
 * Set up a Dead Letter Queue to allow failed messages to be removed from main queue to prevent blocking.
 

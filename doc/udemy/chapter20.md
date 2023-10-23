@@ -73,3 +73,26 @@ Third microservice:
 4. No changes required to architecture, as CloudFront will scale out on demand.
 5. Software updates (static files) are cached at the edge location.
 6. CloudFront costs is cheaper than ASG scaling.
+
+---
+## E-Commerce Online Transaction Processing
+
+* Event-driven architecture with decoupled microservices that communicate with each other.
+* An order service emits an OrderCreated event when a new order is created.
+* The shipping service then consumes this event that starts the shipping process.
+* The transactional nature ensures that all related events are persisted or none of them are.
+* A transactional layer consists of an upstream Lambda function and two DynamoDBs.
+* A transactional layer handles the complexity of the events schema.
+* A downstream Lambda function should be decoupled from the events schema.
+* A downstream Lambda function should only need to relay events.
+
+1. A Lambda function to accept OrderCreated event and writes to two DynamoDB tables.
+2. The OrdersTable contains the order and will persists only if all events persist.
+3. The OutboxTable is configured with a DynamoDB stream, such that every change to it triggers a downstream Lambda.
+4. A downstream Lambda function to accept PublishEvent events and relay them to an EventBridge.
+5. The downstream consumer of the events should be idempotent (able to handle the same event multiple times).
+
+---
+## Reference
+
+* [Don't Lose Your Events! Use the Transactional Outbox Pattern](https://dev.to/aws-builders/dont-lose-your-events-use-the-transactional-outbox-pattern-ggo)

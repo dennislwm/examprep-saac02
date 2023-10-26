@@ -1,18 +1,21 @@
 <!-- TOC -->
 
 - [Chapter 17. Decoupling Applications: SQS, SNS, Kinesis, Active MQ](#chapter-17-decoupling-applications-sqs-sns-kinesis-active-mq)
-    - [Amazon SQS](#amazon-sqs)
-        - [SQS Queue URL](#sqs-queue-url)
-        - [Metadata](#metadata)
-    - [Dead-Letter Queue](#dead-letter-queue)
-    - [Delay Queue vs Visibility Timeout](#delay-queue-vs-visibility-timeout)
-    - [Long Polling vs Short Empty Polling](#long-polling-vs-short-empty-polling)
-    - [Temporary Queues](#temporary-queues)
-    - [Moving From a Standard Queue to a FIFO Queue](#moving-from-a-standard-queue-to-a-fifo-queue)
-    - [FIFO Queues with Multiple Groups](#fifo-queues-with-multiple-groups)
-    - [Amazon Kinesis](#amazon-kinesis)
-    - [AWS Kinesis Best Practices](#aws-kinesis-best-practices)
-    - [References](#references)
+  - [Amazon SQS](#amazon-sqs)
+    - [SQS Queue URL](#sqs-queue-url)
+    - [Metadata](#metadata)
+  - [Dead-Letter Queue](#dead-letter-queue)
+  - [Delay Queue vs Visibility Timeout](#delay-queue-vs-visibility-timeout)
+  - [Long Polling vs Short Empty Polling](#long-polling-vs-short-empty-polling)
+  - [Temporary Queues](#temporary-queues)
+  - [Moving From a Standard Queue to a FIFO Queue](#moving-from-a-standard-queue-to-a-fifo-queue)
+  - [FIFO Queues with Multiple Groups](#fifo-queues-with-multiple-groups)
+  - [Amazon SNS](#amazon-sns)
+  - [SNS Security](#sns-security)
+    - [Mask and Redact Sensitive Data Using SNS Managed Data Identifiers](#mask-and-redact-sensitive-data-using-sns-managed-data-identifiers)
+  - [Amazon Kinesis](#amazon-kinesis)
+  - [AWS Kinesis Best Practices](#aws-kinesis-best-practices)
+  - [References](#references)
 
 <!-- /TOC -->
 
@@ -122,6 +125,54 @@ The order of messages leaving a FIFO queue is governed by three rules:
 3. If a message batch is still not full, go back to rule 1.
 
 ---
+## Amazon SNS
+
+SNS is a serverless messaging service that provides topic for push-based, many-to-many messaging for decoupling distributed system.
+
+---
+## SNS Security
+
+### Mask and Redact Sensitive Data Using SNS Managed Data Identifiers
+
+Applications may inadvertantly send sensitive data to topics, increasing regulatory risk. To mitigate this risk, you can use message data protection to protect sensitive data using built-in, no-code, scalable capabilities.
+
+* Associate data protection policies to your topics.
+
+* Within each policy statement, define:
+  - whether you want to act on data flowing inbound or outbound.
+  - IAM principals the statement applies to.
+  - action you want to take on the sensitive data found.
+
+* Three actions to help you protect your data:
+  - Audit operation - reports on the amount of sensitive data found.
+  - Deny operation - prevent delivery of payloads that contain sensitive data.
+  - De-identify operation - mask or redact the sensitive data.
+
+* Uses pattern matching and ML models to scan your messages for sensitive data.
+
+* The types of sensitive data are referred to as data identifiers.
+
+* Managed data identifiers (MDI) are organized into five categories:
+  - Personally identifiable information (PII) - name, address etc.
+  - Protected health information (PHI) - healthcard number etc.
+  - Financial information - bank account number etc.
+  - Credential information - SSH private key etc.
+  - Device information - IP address etc.
+
+* In a data protection policy statement, you refer to a managed data identifier using its ARN, e.g. `arn:aws:dataprotection::aws:data-identifier/CreditCardNumber`.
+
+* Custom data identifiers (CDI) enable you to define custom regular expressions in the data protection policy itself, then refer to them from policy statements. For example:
+
+```json
+  "Configuration": {
+    "CustomDataIdentifier": [{
+      "Name": "MyCompanyEmployeeId",
+      "Regex": "EID-\d{9}-US"
+    }]
+  }
+```
+
+---
 ## Amazon Kinesis
 
 Amazon Kinesis makes it easy to collect, process, and analyze streaming data in real-time, such as application logs, IoT telemetry data etc.
@@ -161,3 +212,5 @@ To help ingest real-time data, you can use Amazon Kinesis Data Streams, which ca
 * [Amazon SQS features and capabilities](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/features-capabilities.html)
 
 * [Simple Two-way Messaging using the Amazon SQS Temporary Queue Client](https://aws.amazon.com/blogs/compute/simple-two-way-messaging-using-the-amazon-sqs-temporary-queue-client)
+
+* [Mask and redact sensitive data published to Amazon SNS using managed and custom data identifiers](https://aws.amazon.com/blogs/security/mask-and-redact-sensitive-data-published-to-amazon-sns-using-managed-and-custom-data-identifiers)

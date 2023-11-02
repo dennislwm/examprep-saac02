@@ -54,8 +54,41 @@ Deprecation (end of support) for a runtime occurs in two phases:
 * Over-provision your memory in order to run your functions faster and potentially reduce costs. But do not over-provision your function time out settings as it will lead to longer than expected running costs.
 
 ---
+## Lambda Runtime API Proxy Extension
+
+AWS Lambda runtimes use the Lambda Runtime API to communicate with the Lambda service. Runtimes use it to retrieve inbound events to be processed by the function handler, return successful handler responses to the Lambda service, and report failures. Lambda Extensions enable you to integrate Lambda functions with your preferred tools for monitoring, observability, security, and governance without changing function code, using the Runtime API proxy pattern.
+
+Lambda Extensions are packaged as Lambda layers and run as a separate process in the execution environment. When you register your extension with the Lambda service, you can specify you want to receive the INVOKE event. The Lambda service sends this event to the extension asynchronously when a function is invoked.
+
+![AWS Lambda Runtime API and Extensions API endpoints](../../img/udemy/Chp19.1.png)
+
+The information supplied contains the function invocation metadata, but not the event payload. This makes the event useful for observability, but limited for application security and governance use cases.
+
+### Runtime API Proxy Pattern
+
+The Lambda Runtime API proxy is a pattern that enables you to hook into the function invocation request and response lifecycle. It proxies requests and responses, allowing you to augment them, and control the workflow.
+
+![Runtime API proxy hooks](../../img/udemy/Chp19.2.png)
+
+There are several important considerations:
+
+* You must implement proxying for all Runtime API endpoints and handle potential runtime failures.
+
+* Allow your extension consumers to configure the extension via environment variables using at least two parameters - the port your proxy listens on and the Runtime API endpoint your proxy forwards requests to.
+
+* Proxying API requests with default buffered responses requires additional work to support functions with response payload streaming.
+
+* Proxying API requests adds latency. AWS recommends you implement extensions using a programming language that compiles to a binary executable, such as Golang or Rust. Apart from keeing your extension lightweight and optimized, this also allows you to use the extension with any Lambda runtime. Extensions implemented in interpreted langauges or require VMs, such as JavaScript or Java, can only be used with that specific runtime.
+
+### Extensions Security
+
+Extensions run within the same execution environment as the function, so they have the same level of access to resources. IAM permissions assigned to the function are shared with extensions.
+
+---
 ## Reference
 
 * [Best Practices for Developing on AWS Lambda](https://aws.amazon.com/blogs/architecture/best-practices-for-developing-on-aws-lambda/)
 
 * [Lambda runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
+
+* [Enhancing runtime security and governance with the AWS Lambda Runtime API proxy extension](https://aws.amazon.com/blogs/compute/enhancing-runtime-security-and-governance-with-the-aws-lambda-runtime-api-proxy-extension)

@@ -20,6 +20,61 @@ The objective of this domain is to ensure that sufficient access management cont
 * 2. You can use IAM Identity Center for temporary elevated access management for both vendor-managed and supported solutions as well as self-managed and self-supported solutions.
 
 ---
+## Control: Identify
+
+1. Inventory - do you have visibility into the approved resources?
+
+2. Logging - have you securely enabled all relevant logging?
+
+### AWS Config
+
+2. AWS Config rule for logging services:
+- API Gateway: `api-gw-execution-logging-enabled`
+- S3 Bucket: `s3-event-notifications-enabled`
+
+---
+## Control: Protect
+
+1. Secure access management - does the service use least privilege practices?
+
+2. Secure network configuration - does the service properly segment and isolate sensitive resources?
+
+3. Data protection - does the service protect data?
+
+4. API protection - does the service protect API operations?
+
+5. Protective services - Are correct protective services in place and do they provide the correct amount of coverage?
+
+6. Secure development - Do you use secure coding practices?
+
+---
+## Control: Detect
+
+1. Detection services - Are the correct detection services in place and do they provide the correct amount of coverage?
+
+### AWS Config
+
+1. AWS Config rules for detection services:
+- API Gateway: `api-gw-xray-enabled`
+- Cloudformation Stack: `cloudformation-stack-notification-check`
+
+---
+## Control: Respond
+
+1. Response actions - Do you respond to security events quickly and do you have security findings?
+
+2. Forensices - Do you securely acquire forensic data and have you set up a forensic account?
+
+---
+## Control: Recover
+
+1. Resilience - Does the service configuration support failovers, elastic scaling, and high availability, and have you established backups?
+
+---
 ## Reference
 
 * [The Cyber Security Agency (CSA) Cyber Trust mark certification](https://d1.awsstatic.com/whitepapers/compliance/CSA_Cyber_Trust_mark_certification_Cloud_Companion_Guide.pdf)
+
+* [AWS Foundational Security Best Practices (FSBP) standard](https://docs.aws.amazon.com/securityhub/latest/userguide/fsbp-standard.html)
+
+* [Control categories](https://docs.aws.amazon.com/securityhub/latest/userguide/control-categories.html)
